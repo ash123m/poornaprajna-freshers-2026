@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body class="no-copy awaiting-session">
   <!-- Layer 1: Celebratory Floating Balloons & Starlight Sparkles -->
@@ -82,11 +82,12 @@
         <p id="checkin-error" class="checkin-error" role="alert" hidden></p>
 
         <button id="checkin-submit" class="glow-btn primary-btn checkin-submit-btn" type="submit">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg class="btn-icon btn-icon-idle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>
             <path d="M19 3v4M21 5h-4M5 17v4M7 19H3"/>
           </svg>
-          <span>LET'S CELEBRATE</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+          <span class="btn-label">LET'S CELEBRATE</span>
         </button>
       </form>
     </div>
@@ -438,6 +439,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>

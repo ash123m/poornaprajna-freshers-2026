@@ -721,7 +721,13 @@
         return;
       }
 
-      if (checkinSubmitBtn) checkinSubmitBtn.disabled = true;
+      const submitLabel = checkinSubmitBtn?.querySelector('.btn-label');
+      if (checkinSubmitBtn) {
+        checkinSubmitBtn.disabled = true;
+        checkinSubmitBtn.classList.add('is-loading');
+      }
+      if (submitLabel) submitLabel.textContent = 'Checking In...';
+
       try {
         const resp = await fetch('/api/checkin', {
           method: 'POST',
@@ -745,7 +751,11 @@
       } catch {
         setCheckinError('Network error while checking in. Please try again.');
       } finally {
-        if (checkinSubmitBtn) checkinSubmitBtn.disabled = false;
+        if (checkinSubmitBtn) {
+          checkinSubmitBtn.disabled = false;
+          checkinSubmitBtn.classList.remove('is-loading');
+        }
+        if (submitLabel) submitLabel.textContent = "LET'S CELEBRATE";
       }
     });
   }

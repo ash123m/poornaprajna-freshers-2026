@@ -51,6 +51,16 @@ function getPool() {
 async function ensureSchema() {
   const pool = getPool();
   if (tableReady) return pool;
+  // Fast check: skip DDL if tables already exist in Neon (saves ~300-600ms on cold start)
+  try {
+    await pool.query(`SELECT 1 FROM freshers_checkins LIMIT 1;`);
+    await pool.query(`SELECT 1 FROM event_settings LIMIT 1;`);
+    tableReady = true;
+    return pool;
+  } catch (err) {
+    if (err && err.code !== '42P01') throw err;
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS freshers_checkins (
       id BIGSERIAL PRIMARY KEY,
