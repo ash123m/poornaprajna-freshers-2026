@@ -454,14 +454,12 @@
                 <th>#</th>
                 <th>Roll No</th>
                 <th>Full Name</th>
-                <th>Source</th>
-                <th>Re-Scans</th>
                 <th>Checked In (IST)</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="entries-tbody">
-              <tr><td colspan="7">Loading entries...</td></tr>
+              <tr><td colspan="5">Loading entries...</td></tr>
             </tbody>
           </table>
         </div>
@@ -544,7 +542,7 @@
           : allEntries;
 
         if (!filtered.length) {
-          tbody.innerHTML = '<tr><td colspan="7">No matching entries yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5">No matching entries yet.</td></tr>';
           return;
         }
 
@@ -561,16 +559,6 @@
           const tdName = document.createElement('td');
           tdName.textContent = row.full_name;
 
-          const tdSrc = document.createElement('td');
-          const badge = document.createElement('span');
-          const isOverride = row.entry_source === 'admin_override';
-          badge.className = `badge ${isOverride ? 'badge-override' : 'badge-qr'}`;
-          badge.textContent = isOverride ? 'Incharge Override' : 'QR Scan';
-          tdSrc.appendChild(badge);
-
-          const tdRescan = document.createElement('td');
-          tdRescan.textContent = String(row.reverify_count || 0);
-
           const tdTime = document.createElement('td');
           tdTime.textContent = formatIST(row.checked_in_at);
 
@@ -582,7 +570,7 @@
           delBtn.addEventListener('click', () => removeEntry(row.roll_no));
           tdAct.appendChild(delBtn);
 
-          tr.append(tdIdx, tdRoll, tdName, tdSrc, tdRescan, tdTime, tdAct);
+          tr.append(tdIdx, tdRoll, tdName, tdTime, tdAct);
           tbody.appendChild(tr);
         });
       }
