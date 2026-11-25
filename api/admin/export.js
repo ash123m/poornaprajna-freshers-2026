@@ -46,7 +46,18 @@ module.exports = async function handler(req, res) {
 
   try {
     const rows = await listAllCheckins();
-    const header = ['Sl No', 'Roll Number', 'Full Name', 'First Name', 'Entry Source', 'Re-Scans', 'Checked In (IST)'];
+    const header = [
+      'Sl No',
+      'Roll Number',
+      'Full Name',
+      'First Name',
+      'Entry Source',
+      'Re-Scans',
+      'Checked In (IST)',
+      'Feedback Rating (1-5)',
+      'Feedback Comment',
+      'Feedback Submitted (IST)'
+    ];
     const lines = [header.map(csvEscape).join(',')];
 
     rows.forEach((row, index) => {
@@ -58,7 +69,10 @@ module.exports = async function handler(req, res) {
           row.first_name,
           row.entry_source === 'admin_override' ? 'Incharge Override' : 'QR Self-Scan',
           row.reverify_count,
-          formatIST(row.checked_in_at)
+          formatIST(row.checked_in_at),
+          row.feedback_rating ? String(row.feedback_rating) : '',
+          row.feedback_comment || '',
+          row.feedback_submitted_at ? formatIST(row.feedback_submitted_at) : ''
         ]
           .map(csvEscape)
           .join(',')

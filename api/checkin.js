@@ -16,7 +16,8 @@ const {
 const {
   findByRollNo,
   insertCheckin,
-  touchReverify
+  touchReverify,
+  getFeedbackUnlockAt
 } = require('./_lib/db');
 
 module.exports = async function handler(req, res) {
@@ -70,6 +71,7 @@ module.exports = async function handler(req, res) {
     });
 
     if (inserted) {
+      const feedbackUnlockAt = await getFeedbackUnlockAt();
       const token = signPayload({
         role: 'fresher',
         rollNo: inserted.roll_no,
@@ -80,7 +82,11 @@ module.exports = async function handler(req, res) {
         ok: true,
         status: 'checked_in',
         name: inserted.full_name,
-        firstName: inserted.first_name
+        firstName: inserted.first_name,
+        feedbackUnlockAt,
+        serverNow: new Date().toISOString(),
+        feedbackSubmitted: false,
+        feedbackRating: null
       });
     }
 
@@ -98,6 +104,7 @@ module.exports = async function handler(req, res) {
     }
 
     const updated = (await touchReverify(rollNo)) || existing;
+    const feedbackUnlockAt = await getFeedbackUnlockAt();
     const token = signPayload({
       role: 'fresher',
       rollNo: updated.roll_no,
@@ -109,7 +116,11 @@ module.exports = async function handler(req, res) {
       ok: true,
       status: 'reverified',
       name: updated.full_name,
-      firstName: updated.first_name
+      firstName: updated.first_name,
+      feedbackUnlockAt,
+      serverNow: new Date().toISOString(),
+      feedbackSubmitted: Boolean(updated.feedback_submitted_at),
+      feedbackRating: updated.feedback_rating || null
     });
   } catch (err) {
     console.error('Check-in error:', err);

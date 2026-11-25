@@ -7,7 +7,7 @@ const {
   normalizeRollNo,
   sendJson
 } = require('../_lib/auth');
-const { listAllCheckins, deleteByRollNo } = require('../_lib/db');
+const { listAllCheckins, deleteByRollNo, getFeedbackUnlockAt } = require('../_lib/db');
 
 function requireAdmin(req) {
   const cookies = parseCookies(req);
@@ -22,8 +22,16 @@ module.exports = async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      const rows = await listAllCheckins();
-      return sendJson(res, 200, { ok: true, entries: rows });
+      const [rows, feedbackUnlockAt] = await Promise.all([
+        listAllCheckins(),
+        getFeedbackUnlockAt()
+      ]);
+      return sendJson(res, 200, {
+        ok: true,
+        entries: rows,
+        feedbackUnlockAt,
+        serverNow: new Date().toISOString()
+      });
     }
 
     if (req.method === 'DELETE') {

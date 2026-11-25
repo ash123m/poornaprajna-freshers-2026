@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body class="no-copy awaiting-session">
   <!-- Layer 1: Celebratory Floating Balloons & Starlight Sparkles -->
@@ -307,7 +307,95 @@
         </div>
       </div>
     </section>
+
+    <!-- SECTION 5: Event Feedback (Locked until scheduled unlock time; tied to Roll No) -->
+    <section id="feedback-section" class="section feedback-section" aria-labelledby="feedback-heading">
+      <div class="container">
+        <div class="glass-card feedback-card reveal-on-scroll">
+          <span class="section-kicker">Your Voice Matters</span>
+          <h2 id="feedback-heading" class="section-heading">Event Feedback</h2>
+
+          <!-- Locked View -->
+          <div id="feedback-locked" class="feedback-locked">
+            <div class="lock-icon-wrap" aria-hidden="true">
+              <svg class="card-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <p class="feedback-lock-title">Feedback is currently locked</p>
+            <p id="feedback-unlock-label" class="feedback-lock-sub">
+              Unlocks on 26 November 2026 at 12:30 PM
+            </p>
+            <div id="feedback-countdown" class="countdown-pill" aria-live="polite">--:--:--</div>
+          </div>
+
+          <!-- Unlocked Form View -->
+          <form id="feedback-form" class="feedback-form" hidden novalidate>
+            <p class="feedback-form-sub">Rate your Freshers Day 2026 experience and share a quick note.</p>
+
+            <div class="star-rating" role="radiogroup" aria-label="Event rating">
+              <button type="button" class="star-btn" data-rating="1" aria-label="1 star">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </button>
+              <button type="button" class="star-btn" data-rating="2" aria-label="2 stars">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </button>
+              <button type="button" class="star-btn" data-rating="3" aria-label="3 stars">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </button>
+              <button type="button" class="star-btn" data-rating="4" aria-label="4 stars">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </button>
+              <button type="button" class="star-btn" data-rating="5" aria-label="5 stars">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </button>
+            </div>
+
+            <div class="field-group">
+              <label for="feedback-comment">Your Experience</label>
+              <textarea
+                id="feedback-comment"
+                rows="3"
+                maxlength="500"
+                placeholder="Share your favorite moments from Freshers Day 2026..."
+                required
+              ></textarea>
+            </div>
+
+            <p id="feedback-error" class="checkin-error" role="alert" hidden></p>
+
+            <button id="feedback-submit" class="glow-btn primary-btn feedback-submit-btn" type="submit">
+              <span>Submit Feedback</span>
+            </button>
+          </form>
+
+          <!-- Submitted View -->
+          <div id="feedback-done" class="feedback-done" hidden>
+            <div class="ready-badge">
+              <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span>Feedback Recorded</span>
+            </div>
+            <p id="feedback-done-text" class="feedback-done-text">
+              Thank you for sharing your feedback!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <!-- 5-Second Feedback Unlock Alert Banner -->
+  <div id="feedback-unlock-alert" class="unlock-alert" role="alert" aria-live="assertive" hidden>
+    <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+    </svg>
+    <span>Feedback is now unlocked! Share your Freshers Day 2026 experience below.</span>
+  </div>
 
   <!-- Live toast announcement for celebration taps -->
   <div id="celebration-toast" class="celebration-toast" role="status" aria-live="polite" hidden>
@@ -346,6 +434,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

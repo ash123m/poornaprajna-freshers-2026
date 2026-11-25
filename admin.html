@@ -181,7 +181,8 @@
 
     input[type="text"],
     input[type="password"],
-    input[type="search"] {
+    input[type="search"],
+    input[type="datetime-local"] {
       width: 100%;
       padding: 11px 13px;
       border-radius: 10px;
@@ -190,6 +191,25 @@
       color: var(--cream);
       font-family: inherit;
       font-size: 0.94rem;
+      color-scheme: dark;
+    }
+
+    .feedback-cell {
+      max-width: 280px;
+      white-space: normal;
+      line-height: 1.35;
+      color: var(--cream);
+    }
+
+    .rating-pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(244, 196, 48, 0.16);
+      border: 1px solid rgba(244, 196, 48, 0.38);
+      color: var(--gold-soft);
+      font-size: 0.76rem;
+      font-weight: 700;
     }
 
     .pin-input-wrap {
@@ -427,10 +447,26 @@
         </form>
       </section>
 
+      <!-- Feedback Unlock Timer Control -->
+      <section class="card">
+        <h2 class="section-title">Feedback Unlock Timer (IST)</h2>
+        <form id="timer-form">
+          <div class="form-grid form-grid-3">
+            <div>
+              <label for="feedback-unlock-input">Unlock Date &amp; Time (IST)</label>
+              <input id="feedback-unlock-input" type="datetime-local" required>
+            </div>
+            <button id="btn-save-timer" class="btn btn-gold" type="submit">Save Unlock Timer</button>
+            <button id="btn-unlock-now" class="btn btn-outline" type="button">Unlock Now</button>
+          </div>
+          <p id="timer-status" class="msg msg-ok" hidden></p>
+        </form>
+      </section>
+
       <!-- Attendance Table + CSV Export -->
       <section class="card">
         <div class="table-controls">
-          <input id="search-input" type="search" placeholder="Search by Name or Roll No...">
+          <input id="search-input" type="search" placeholder="Search by Name, Roll No, or Feedback...">
           <div class="nav-actions">
             <button id="btn-refresh" class="btn btn-outline" type="button">Refresh</button>
             <a id="btn-export" class="btn btn-gold" href="/api/admin/export">Download CSV / Excel</a>
@@ -444,12 +480,14 @@
                 <th>#</th>
                 <th>Roll No</th>
                 <th>Full Name</th>
+                <th>Rating</th>
+                <th>Feedback</th>
                 <th>Checked In (IST)</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="entries-tbody">
-              <tr><td colspan="5">Loading entries...</td></tr>
+              <tr><td colspan="7">Loading entries...</td></tr>
             </tbody>
           </table>
         </div>
@@ -482,6 +520,11 @@
       const ovRoll = document.getElementById('ov-roll');
       const ovForce = document.getElementById('ov-force');
       const ovMsg = document.getElementById('ov-msg');
+
+      const timerForm = document.getElementById('timer-form');
+      const timerInput = document.getElementById('feedback-unlock-input');
+      const unlockNowBtn = document.getElementById('btn-unlock-now');
+      const timerStatus = document.getElementById('timer-status');
 
       const searchInput = document.getElementById('search-input');
       const refreshBtn = document.getElementById('btn-refresh');
@@ -524,12 +567,13 @@
           ? allEntries.filter(
               (r) =>
                 String(r.roll_no).toLowerCase().includes(q) ||
-                String(r.full_name).toLowerCase().includes(q)
+                String(r.full_name).toLowerCase().includes(q) ||
+                String(r.feedback_comment || '').toLowerCase().includes(q)
             )
           : allEntries;
 
         if (!filtered.length) {
-          tbody.innerHTML = '<tr><td colspan="5">No matching entries yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7">No matching entries yet.</td></tr>';
           return;
         }
 
@@ -546,6 +590,20 @@
           const tdName = document.createElement('td');
           tdName.textContent = row.full_name;
 
+          const tdRating = document.createElement('td');
+          if (row.feedback_rating) {
+            const pill = document.createElement('span');
+            pill.className = 'rating-pill';
+            pill.textContent = `${row.feedback_rating} / 5`;
+            tdRating.appendChild(pill);
+          } else {
+            tdRating.textContent = '—';
+          }
+
+          const tdComment = document.createElement('td');
+          tdComment.className = 'feedback-cell';
+          tdComment.textContent = row.feedback_comment || '—';
+
           const tdTime = document.createElement('td');
           tdTime.textContent = formatIST(row.checked_in_at);
 
@@ -561,13 +619,74 @@
           });
           tdAct.appendChild(delBtn);
 
-          tr.append(tdIdx, tdRoll, tdName, tdTime, tdAct);
+          tr.append(tdIdx, tdRoll, tdName, tdRating, tdComment, tdTime, tdAct);
           tbody.appendChild(tr);
         });
       }
 
       function updateKpis() {
         kpiTotal.textContent = String(allEntries.length);
+      }
+
+      function toIstInputValue(iso) {
+        try {
+          const d = new Date(iso);
+          const istMs = d.getTime() + 330 * 60 * 1000;
+          return new Date(istMs).toISOString().slice(0, 16);
+        } catch {
+          return '2026-11-26T12:30';
+        }
+      }
+
+      function showTimerStatus(unlockIso, serverNowIso) {
+        if (timerInput && unlockIso) {
+          timerInput.value = toIstInputValue(unlockIso);
+        }
+        if (!timerStatus || !unlockIso) return;
+        const nowMs = serverNowIso ? Date.parse(serverNowIso) : Date.now();
+        const unlockMs = Date.parse(unlockIso);
+        const locked = nowMs < unlockMs;
+        showMsg(
+          timerStatus,
+          locked
+            ? `Locked until ${formatIST(unlockIso)} IST`
+            : `Unlocked since ${formatIST(unlockIso)} IST`,
+          false
+        );
+      }
+
+      async function saveUnlockIso(isoStr) {
+        try {
+          const resp = await fetch('/api/admin/feedback-config', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feedbackUnlockAt: isoStr })
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok || !data.ok) {
+            showMsg(timerStatus, data.error || 'Could not update timer.', true);
+            return;
+          }
+          showTimerStatus(data.feedbackUnlockAt, data.serverNow);
+        } catch {
+          showMsg(timerStatus, 'Network error saving timer.', true);
+        }
+      }
+
+      if (timerForm) {
+        timerForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const val = (timerInput?.value || '').trim();
+          if (!val) return;
+          saveUnlockIso(`${val}:00+05:30`);
+        });
+      }
+
+      if (unlockNowBtn) {
+        unlockNowBtn.addEventListener('click', () => {
+          saveUnlockIso(new Date().toISOString());
+        });
       }
 
       async function loadEntries() {
@@ -588,6 +707,9 @@
         if (lockBtn) lockBtn.hidden = false;
         updateKpis();
         renderTable();
+        if (data.feedbackUnlockAt) {
+          showTimerStatus(data.feedbackUnlockAt, data.serverNow);
+        }
         return true;
       }
 

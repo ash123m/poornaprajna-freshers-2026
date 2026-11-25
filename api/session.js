@@ -6,7 +6,7 @@ const {
   verifyToken,
   sendJson
 } = require('./_lib/auth');
-const { findByRollNo } = require('./_lib/db');
+const { findByRollNo, getFeedbackUnlockAt } = require('./_lib/db');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -14,23 +14,38 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    const feedbackUnlockAt = await getFeedbackUnlockAt();
+    const serverNow = new Date().toISOString();
+
     const cookies = parseCookies(req);
     const token = cookies[STUDENT_COOKIE];
     const payload = verifyToken(token);
 
     if (!payload || payload.role !== 'fresher' || !payload.rollNo) {
-      return sendJson(res, 200, { checkedIn: false });
+      return sendJson(res, 200, {
+        checkedIn: false,
+        feedbackUnlockAt,
+        serverNow
+      });
     }
 
     const record = await findByRollNo(payload.rollNo);
     if (!record) {
-      return sendJson(res, 200, { checkedIn: false });
+      return sendJson(res, 200, {
+        checkedIn: false,
+        feedbackUnlockAt,
+        serverNow
+      });
     }
 
     return sendJson(res, 200, {
       checkedIn: true,
       name: record.full_name,
-      firstName: record.first_name
+      firstName: record.first_name,
+      feedbackUnlockAt,
+      serverNow,
+      feedbackSubmitted: Boolean(record.feedback_submitted_at),
+      feedbackRating: record.feedback_rating || null
     });
   } catch (err) {
     console.error('Session error:', err);

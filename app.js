@@ -141,15 +141,34 @@
   let smoothPointerY = 0;
   let sparkles = [];
   let balloons = [];
+  let lastBgTime = 0;
 
-  function initCelebrationBackground() {
+  function resizeBackgroundCanvasOnly() {
     if (!bgCanvas || !bgCtx) return;
+    const nextW = window.innerWidth;
+    const nextH = window.innerHeight;
+    // Ignore mobile address-bar show/hide height changes during up/down scrolling
+    if (bgW === nextW && Math.abs(nextH - bgH) < 150) return;
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    bgW = window.innerWidth;
-    bgH = window.innerHeight;
+    const prevW = bgW || nextW;
+    bgW = nextW;
+    bgH = nextH;
     bgCanvas.width = Math.floor(bgW * dpr);
     bgCanvas.height = Math.floor(bgH * dpr);
     bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Rescale horizontal positions smoothly without resetting or teleporting elements
+    if (prevW > 0 && prevW !== nextW) {
+      const ratio = nextW / prevW;
+      sparkles.forEach((s) => { s.x *= ratio; });
+      balloons.forEach((b) => { b.x *= ratio; });
+    }
+  }
+
+  function initCelebrationBackground() {
+    if (!bgCanvas || !bgCtx) return;
+    resizeBackgroundCanvasOnly();
 
     const isMobile = bgW < 640;
 
@@ -162,7 +181,7 @@
       isFlare: i % 3 === 0,
       phase: Math.random() * Math.PI * 2,
       speed: 0.9 + Math.random() * 1.4,
-      driftY: -(0.08 + Math.random() * 0.14),
+      driftY: -(6 + Math.random() * 9), // px per second
       depth: 0.3 + Math.random() * 0.7
     }));
 
@@ -178,7 +197,7 @@
       x: ((i + 0.5) / balloonCount) * bgW + (Math.random() - 0.5) * 44,
       y: bgH * 0.12 + Math.random() * (bgH * 0.82),
       rx: isMobile ? 17 + Math.random() * 6 : 21 + Math.random() * 8,
-      speedY: 0.38 + Math.random() * 0.3,
+      speedY: 22 + Math.random() * 18, // px per second (frame-rate independent)
       swayAmp: 12 + Math.random() * 15,
       phase: Math.random() * Math.PI * 2,
       theme: balloonThemes[i % balloonThemes.length],
@@ -267,23 +286,26 @@
   function renderBackgroundFrame(timestamp) {
     if (!bgCtx) return;
     const timeSec = timestamp * 0.001;
+    const dt = lastBgTime ? Math.min(0.05, Math.max(0.001, (timestamp - lastBgTime) * 0.001)) : 0.016;
+    lastBgTime = timestamp;
+
     bgCtx.clearRect(0, 0, bgW, bgH);
 
-    smoothPointerX += (pointerX - smoothPointerX) * 0.05;
-    smoothPointerY += (pointerY - smoothPointerY) * 0.05;
+    smoothPointerX += (pointerX - smoothPointerX) * Math.min(1, dt * 4);
+    smoothPointerY += (pointerY - smoothPointerY) * Math.min(1, dt * 4);
 
     // 1. Twinkling golden star sparkles & warm bokeh motes
     sparkles.forEach((s) => {
       if (!prefersReducedMotion) {
-        s.y += s.driftY;
+        s.y += s.driftY * dt;
         if (s.y < -16) {
           s.y = bgH + 16;
           s.x = Math.random() * bgW;
         }
       }
       const alpha = 0.14 + 0.52 * (0.5 + 0.5 * Math.sin(timeSec * s.speed + s.phase));
-      const sx = s.x + smoothPointerX * s.depth * 14;
-      const sy = s.y + smoothPointerY * s.depth * 10;
+      const sx = s.x + smoothPointerX * s.depth * 12;
+      const sy = s.y + smoothPointerY * s.depth * 8;
 
       if (s.isFlare) {
         drawStarFlare(bgCtx, sx, sy, s.r, alpha);
@@ -298,7 +320,7 @@
     // 2. Volumetric floating balloons
     if (!prefersReducedMotion) {
       balloons.forEach((b) => {
-        b.y -= b.speedY;
+        b.y -= b.speedY * dt;
         if (b.y < -150) {
           b.y = bgH + 120 + Math.random() * 80;
           b.x = Math.random() * bgW;
@@ -312,15 +334,19 @@
 
   if (bgCanvas && bgCtx) {
     initCelebrationBackground();
-    window.addEventListener('resize', initCelebrationBackground, { passive: true });
-    window.addEventListener(
-      'pointermove',
-      (e) => {
-        pointerX = (e.clientX / Math.max(1, bgW) - 0.5) * 2;
-        pointerY = (e.clientY / Math.max(1, bgH) - 0.5) * 2;
-      },
-      { passive: true }
-    );
+    window.addEventListener('resize', resizeBackgroundCanvasOnly, { passive: true });
+    // Mouse-only parallax so touch taps and mobile scrolling never cause direction jitter
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      window.addEventListener(
+        'pointermove',
+        (e) => {
+          if (e.pointerType !== 'mouse') return;
+          pointerX = (e.clientX / Math.max(1, bgW) - 0.5) * 2;
+          pointerY = (e.clientY / Math.max(1, bgH) - 0.5) * 2;
+        },
+        { passive: true }
+      );
+    }
     requestAnimationFrame(renderBackgroundFrame);
   }
 
@@ -346,9 +372,13 @@
 
   function resizeConfettiCanvas() {
     if (!canvas || !ctx) return;
+    const nextW = window.innerWidth;
+    const nextH = window.innerHeight;
+    if (canvasWidth === nextW && Math.abs(nextH - canvasHeight) < 150) return;
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvasWidth = window.innerWidth;
-    canvasHeight = window.innerHeight;
+    canvasWidth = nextW;
+    canvasHeight = nextH;
     canvas.width = Math.floor(canvasWidth * dpr);
     canvas.height = Math.floor(canvasHeight * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -586,6 +616,7 @@
     if (checkinGate) checkinGate.hidden = true;
     document.body.classList.remove('awaiting-session', 'gate-open');
     fireWelcomeShower();
+    renderFeedbackUI();
   }
 
   function showGate() {
@@ -641,6 +672,7 @@
       }
 
       const data = await resp.json();
+      syncFeedbackState(data);
       if (data.checkedIn && data.name) {
         unlockCelebration(data.name, data.firstName, 'session');
       } else if (cached) {
@@ -693,6 +725,7 @@
           return;
         }
 
+        syncFeedbackState(data);
         unlockCelebration(data.name, data.firstName);
       } catch {
         setCheckinError('Network error while checking in. Please try again.');
@@ -726,6 +759,207 @@
   }
 
   window.addEventListener('DOMContentLoaded', initSessionGate);
+
+  // ---------------------------------------------------------------------------
+  // 5b. Event Feedback (Locked until unlock time, 5s alert on unlock, tied to Roll No)
+  // ---------------------------------------------------------------------------
+  const DEFAULT_FEEDBACK_UNLOCK_ISO = '2026-11-26T12:30:00+05:30';
+  const feedbackLockedEl = document.getElementById('feedback-locked');
+  const feedbackUnlockLabelEl = document.getElementById('feedback-unlock-label');
+  const feedbackCountdownEl = document.getElementById('feedback-countdown');
+  const feedbackFormEl = document.getElementById('feedback-form');
+  const feedbackCommentEl = document.getElementById('feedback-comment');
+  const feedbackErrorEl = document.getElementById('feedback-error');
+  const feedbackSubmitBtn = document.getElementById('feedback-submit');
+  const feedbackDoneEl = document.getElementById('feedback-done');
+  const feedbackDoneTextEl = document.getElementById('feedback-done-text');
+  const feedbackUnlockAlertEl = document.getElementById('feedback-unlock-alert');
+  const starBtns = Array.from(document.querySelectorAll('.star-btn'));
+
+  let feedbackUnlockMs = Date.parse(DEFAULT_FEEDBACK_UNLOCK_ISO);
+  let serverOffsetMs = 0;
+  let feedbackSubmitted = false;
+  let feedbackRatingVal = 0;
+  let wasFeedbackLocked = null;
+  let feedbackTickTimer = null;
+  let unlockAlertTimer = null;
+
+  function getServerNowMs() {
+    return Date.now() + serverOffsetMs;
+  }
+
+  function formatUnlockIST(ms) {
+    try {
+      return new Date(ms).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch {
+      return '26 November 2026, 12:30 PM';
+    }
+  }
+
+  function showFiveSecUnlockAlert() {
+    if (!feedbackUnlockAlertEl || (checkinGate && !checkinGate.hidden)) return;
+    feedbackUnlockAlertEl.hidden = false;
+    requestAnimationFrame(() => {
+      feedbackUnlockAlertEl.classList.add('is-visible');
+    });
+    clearTimeout(unlockAlertTimer);
+    unlockAlertTimer = setTimeout(() => {
+      feedbackUnlockAlertEl.classList.remove('is-visible');
+      setTimeout(() => {
+        feedbackUnlockAlertEl.hidden = true;
+      }, 300);
+    }, 5000);
+  }
+
+  function setSelectedRating(val) {
+    feedbackRatingVal = val;
+    starBtns.forEach((btn) => {
+      const r = Number(btn.getAttribute('data-rating'));
+      btn.classList.toggle('is-active', r <= val);
+    });
+  }
+
+  starBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setSelectedRating(Number(btn.getAttribute('data-rating')));
+    });
+  });
+
+  function renderFeedbackUI() {
+    if (!feedbackLockedEl || !feedbackFormEl || !feedbackDoneEl) return;
+
+    if (feedbackSubmitted) {
+      feedbackLockedEl.hidden = true;
+      feedbackFormEl.hidden = true;
+      feedbackDoneEl.hidden = false;
+      if (feedbackDoneTextEl && feedbackRatingVal) {
+        feedbackDoneTextEl.textContent = `Thank you! You rated Freshers Day 2026 ${feedbackRatingVal}/5.`;
+      }
+      return;
+    }
+
+    const diffMs = feedbackUnlockMs - getServerNowMs();
+    if (diffMs > 0) {
+      wasFeedbackLocked = true;
+      feedbackLockedEl.hidden = false;
+      feedbackFormEl.hidden = true;
+      feedbackDoneEl.hidden = true;
+
+      if (feedbackUnlockLabelEl) {
+        feedbackUnlockLabelEl.textContent = `Unlocks on ${formatUnlockIST(feedbackUnlockMs)} IST`;
+      }
+      if (feedbackCountdownEl) {
+        const totalSec = Math.ceil(diffMs / 1000);
+        const hrs = Math.floor(totalSec / 3600);
+        const mins = Math.floor((totalSec % 3600) / 60);
+        const secs = totalSec % 60;
+        const pad = (n) => String(n).padStart(2, '0');
+        feedbackCountdownEl.textContent = `${pad(hrs)}h : ${pad(mins)}m : ${pad(secs)}s`;
+      }
+    } else {
+      feedbackLockedEl.hidden = true;
+      feedbackFormEl.hidden = false;
+      feedbackDoneEl.hidden = true;
+
+      if (wasFeedbackLocked === true) {
+        wasFeedbackLocked = false;
+        showFiveSecUnlockAlert();
+      } else if (wasFeedbackLocked === null) {
+        wasFeedbackLocked = false;
+        if (!feedbackSubmitted) {
+          showFiveSecUnlockAlert();
+        }
+      }
+    }
+  }
+
+  function syncFeedbackState(data) {
+    if (data && data.serverNow) {
+      const srv = Date.parse(data.serverNow);
+      if (Number.isFinite(srv)) serverOffsetMs = srv - Date.now();
+    }
+    if (data && data.feedbackUnlockAt) {
+      const unlock = Date.parse(data.feedbackUnlockAt);
+      if (Number.isFinite(unlock)) feedbackUnlockMs = unlock;
+    }
+    if (data && typeof data.feedbackSubmitted === 'boolean') {
+      feedbackSubmitted = data.feedbackSubmitted;
+    }
+    if (data && data.feedbackRating) {
+      feedbackRatingVal = Number(data.feedbackRating) || 0;
+    }
+    renderFeedbackUI();
+  }
+
+  if (feedbackFormEl) {
+    feedbackFormEl.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (feedbackErrorEl) {
+        feedbackErrorEl.hidden = true;
+        feedbackErrorEl.textContent = '';
+      }
+
+      const comment = (feedbackCommentEl?.value || '').trim();
+      if (!feedbackRatingVal || feedbackRatingVal < 1 || feedbackRatingVal > 5) {
+        if (feedbackErrorEl) {
+          feedbackErrorEl.textContent = 'Please tap a star rating (1 to 5) first.';
+          feedbackErrorEl.hidden = false;
+        }
+        return;
+      }
+      if (comment.length < 3) {
+        if (feedbackErrorEl) {
+          feedbackErrorEl.textContent = 'Please share a short note (at least 3 characters).';
+          feedbackErrorEl.hidden = false;
+        }
+        feedbackCommentEl?.focus();
+        return;
+      }
+
+      if (feedbackSubmitBtn) feedbackSubmitBtn.disabled = true;
+      try {
+        const resp = await fetch('/api/feedback', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating: feedbackRatingVal, comment })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.ok) {
+          if (data.feedbackUnlockAt) syncFeedbackState(data);
+          if (feedbackErrorEl) {
+            feedbackErrorEl.textContent = data.error || 'Could not submit feedback.';
+            feedbackErrorEl.hidden = false;
+          }
+          return;
+        }
+        feedbackSubmitted = true;
+        renderFeedbackUI();
+      } catch {
+        if (feedbackErrorEl) {
+          feedbackErrorEl.textContent = 'Network error submitting feedback. Please try again.';
+          feedbackErrorEl.hidden = false;
+        }
+      } finally {
+        if (feedbackSubmitBtn) feedbackSubmitBtn.disabled = false;
+      }
+    });
+  }
+
+  renderFeedbackUI();
+  feedbackTickTimer = setInterval(() => {
+    if (!feedbackSubmitted && feedbackUnlockMs > getServerNowMs() - 2000) {
+      renderFeedbackUI();
+    }
+  }, 1000);
 
   // ---------------------------------------------------------------------------
   // 6. Button Actions ("LET'S CELEBRATE", "CELEBRATE AGAIN", WhatsApp)

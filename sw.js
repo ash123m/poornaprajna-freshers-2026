@@ -1,7 +1,7 @@
-const CACHE_NAME = 'pim-mca-freshers-2026-v13';
+const CACHE_NAME = 'pim-mca-freshers-2026-v15';
 const ASSETS_TO_CACHE = [
-  './styles.css?v=12',
-  './app.js?v=11',
+  './styles.css?v=14',
+  './app.js?v=13',
   './qr.html',
   './qr-engine.js',
   './manifest.webmanifest',
