@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body class="no-copy awaiting-session">
   <!-- Layer 1: Celebratory Floating Balloons & Starlight Sparkles -->
@@ -82,29 +82,13 @@
         <p id="checkin-error" class="checkin-error" role="alert" hidden></p>
 
         <button id="checkin-submit" class="glow-btn primary-btn checkin-submit-btn" type="submit">
-          <span>Continue</span>
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>
+            <path d="M19 3v4M21 5h-4M5 17v4M7 19H3"/>
+          </svg>
+          <span>LET'S CELEBRATE</span>
         </button>
       </form>
-
-      <!-- Step 2 inside Gate: Inviting "Let's Start!" screen right after Name & Roll No -->
-      <div id="checkin-ready" class="checkin-ready" hidden>
-        <div class="ready-badge">
-          <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-          <span>You're Checked In!</span>
-        </div>
-        <h3 id="ready-greeting" class="ready-greeting">Welcome, Fresher!</h3>
-        <p class="ready-sub">Your Freshers Day 2026 celebration awaits inside.</p>
-        <button id="btn-lets-start" class="glow-btn gold-btn checkin-submit-btn" type="button">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>
-            <path d="M19 3v4M21 5h-4"/>
-          </svg>
-          <span>LET'S START CELEBRATING!</span>
-        </button>
-      </div>
     </div>
   </div>
 
@@ -390,6 +374,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

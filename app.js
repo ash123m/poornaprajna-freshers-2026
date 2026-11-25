@@ -680,21 +680,13 @@
     }
   }
 
-  function unlockCelebration(fullName, firstName, status) {
+  function unlockCelebration(fullName, firstName) {
     applyPersonalizedName(fullName, firstName);
     writeLocalPass(fullName, firstName);
     updateShareLinks(fullName);
     if (checkinGate) checkinGate.hidden = true;
     document.body.classList.remove('awaiting-session', 'gate-open');
     fireWelcomeShower();
-
-    if (status === 'reverified') {
-      showCelebrationToast(`Welcome back, ${fullName}! Your pass was restored.`);
-    } else if (status === 'checked_in') {
-      showCelebrationToast(`Welcome, ${fullName}! You are checked in.`);
-    } else if (status === 'device_locked') {
-      showCelebrationToast(`This device is already registered to ${fullName}.`);
-    }
   }
 
   function showGate() {
@@ -802,7 +794,7 @@
           return;
         }
 
-        showLetsStartStep(data.name, data.firstName, data.status);
+        unlockCelebration(data.name, data.firstName);
       } catch {
         setCheckinError('Network error while checking in. Please try again.');
       } finally {
