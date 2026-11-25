@@ -815,7 +815,7 @@
   function getCleanSiteUrl() {
     return window.location.protocol === 'https:'
       ? `${window.location.origin}${window.location.pathname}`
-      : 'https://ash123m.github.io/poornaprajna-freshers-2026/';
+      : 'https://pim-freshers-2026.vercel.app/';
   }
 
   function updateShareLinks(studentFullName) {

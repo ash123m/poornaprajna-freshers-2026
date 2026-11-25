@@ -4,16 +4,38 @@ const { Pool } = require('pg');
 
 let tableReady = false;
 
+function sanitizeConnectionString(raw) {
+  let s = String(raw || '').trim();
+  // Handle users pasting Neon's full CLI snippet: psql 'postgresql://...'
+  if (/^psql\s+/i.test(s)) {
+    s = s.replace(/^psql\s+/i, '').trim();
+  }
+  if ((s.startsWith("'") && s.endsWith("'")) || (s.startsWith('"') && s.endsWith('"'))) {
+    s = s.slice(1, -1).trim();
+  }
+  // pg v8 can fail when Neon includes channel_binding=require in the copied URL
+  s = s.replace(/([?&])channel_binding=[^&]*&?/gi, '$1').replace(/[?&]$/, '');
+  return s;
+}
+
 function getPool() {
   if (global.__pimPgPool) return global.__pimPgPool;
-  const connStr =
+  const rawConnStr =
     process.env.DATABASE_URL ||
     process.env.POSTGRES_URL ||
     process.env.POSTGRES_PRISMA_URL ||
     process.env.NEON_DATABASE_URL;
 
+  const connStr = sanitizeConnectionString(rawConnStr);
   if (!connStr) {
-    throw new Error('Missing DATABASE_URL / POSTGRES_URL environment variable.');
+    const err = new Error('DATABASE_URL environment variable is missing.');
+    err.publicCode = 'MISSING_DATABASE_URL';
+    throw err;
+  }
+  if (!/^postgres(ql)?:\/\//i.test(connStr)) {
+    const err = new Error('DATABASE_URL must start with postgresql:// or postgres://.');
+    err.publicCode = 'INVALID_DATABASE_URL';
+    throw err;
   }
 
   const needsSsl = !/localhost|127\.0\.0\.1/i.test(connStr);

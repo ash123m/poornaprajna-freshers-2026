@@ -113,6 +113,10 @@ module.exports = async function handler(req, res) {
     });
   } catch (err) {
     console.error('Check-in error:', err);
-    return sendJson(res, 500, { ok: false, error: 'Server error while saving check-in.' });
+    const detail = err?.publicCode || err?.code || '';
+    const msg = detail
+      ? `Server error while saving check-in (${detail}).`
+      : 'Server error while saving check-in.';
+    return sendJson(res, 500, { ok: false, error: msg });
   }
 };

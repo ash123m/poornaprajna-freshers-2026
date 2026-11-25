@@ -314,7 +314,7 @@
       const btnSvg = document.getElementById('btn-download-svg');
       const btnPrint = document.getElementById('btn-print-qr');
 
-      const FALLBACK_LIVE_URL = 'https://ash123m.github.io/poornaprajna-freshers-2026/';
+      const FALLBACK_LIVE_URL = 'https://pim-freshers-2026.vercel.app/';
       const currentLive = window.location.href.replace(/qr\.html.*$/i, '');
       const isLocal = /^(http:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])/i.test(window.location.origin) || window.location.protocol === 'file:';
       const targetUrl = isLocal ? FALLBACK_LIVE_URL : currentLive;
