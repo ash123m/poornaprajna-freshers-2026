@@ -196,16 +196,17 @@
       { highlight: '#6D96E8', mid: '#1B3675', deep: '#07122D', rim: 'rgba(155, 190, 255, 0.42)' },
       { highlight: '#FFFFFF', mid: '#EBDCC0', deep: '#9E8C6E', rim: 'rgba(255, 250, 240, 0.55)' }
     ];
-    const balloonCount = isMobile ? 5 : 8;
-    balloons = Array.from({ length: balloonCount }, (_, i) => ({
-      x: ((i + 0.5) / balloonCount) * bgW + (Math.random() - 0.5) * 44,
-      y: bgH * 0.12 + Math.random() * (bgH * 0.82),
-      rx: isMobile ? 17 + Math.random() * 6 : 21 + Math.random() * 8,
-      speedY: 22 + Math.random() * 18, // px per second (frame-rate independent)
-      swayAmp: 12 + Math.random() * 15,
+    const balloonCount = isMobile ? 8 : 13;
+    balloons = Array.from({ length: balloonCount }, () => ({
+      x: bgW * (0.04 + Math.random() * 0.92),
+      y: Math.random() * (bgH * 1.15),
+      rx: isMobile ? 15 + Math.random() * 9 : 18 + Math.random() * 12,
+      speedY: 14 + Math.random() * 32,
+      swayAmp: 8 + Math.random() * 18,
+      swaySpeed: 0.7 + Math.random() * 1.1,
       phase: Math.random() * Math.PI * 2,
-      theme: balloonThemes[i % balloonThemes.length],
-      alpha: 0.44 + Math.random() * 0.18
+      theme: balloonThemes[Math.floor(Math.random() * balloonThemes.length)],
+      alpha: 0.38 + Math.random() * 0.24
     }));
   }
 
@@ -228,8 +229,9 @@
   }
 
   function drawVolumetricBalloon(ctx, b, timeSec) {
-    const swayX = Math.sin(timeSec * 1.3 + b.phase) * b.swayAmp + smoothPointerX * 10;
-    const tilt = Math.cos(timeSec * 1.3 + b.phase) * 0.08;
+    const swaySpeed = b.swaySpeed || 1.2;
+    const swayX = Math.sin(timeSec * swaySpeed + b.phase) * b.swayAmp + smoothPointerX * 10;
+    const tilt = Math.cos(timeSec * swaySpeed + b.phase) * 0.08;
     const cx = b.x + swayX;
     const cy = b.y;
     const r = b.rx;
@@ -326,8 +328,9 @@
       balloons.forEach((b) => {
         b.y -= b.speedY * dt;
         if (b.y < -150) {
-          b.y = bgH + 120 + Math.random() * 80;
-          b.x = Math.random() * bgW;
+          b.y = bgH + 90 + Math.random() * 240;
+          b.x = bgW * (0.04 + Math.random() * 0.92);
+          b.speedY = 14 + Math.random() * 32;
         }
         drawVolumetricBalloon(bgCtx, b, timeSec);
       });
@@ -393,8 +396,8 @@
   }
 
   function createConfettiPiece(originX, originY, spreadAngle, power) {
-    const angle = spreadAngle + (Math.random() - 0.5) * 1.1;
-    const speed = (Math.random() * 0.65 + 0.45) * power;
+    const angle = spreadAngle + (Math.random() - 0.5) * 1.25;
+    const speed = (Math.random() * 0.72 + 0.42) * power;
     const shapes = ['quad', 'ribbon'];
     const palette = CONFETTI_PALETTE[Math.floor(Math.random() * CONFETTI_PALETTE.length)];
 
@@ -403,8 +406,8 @@
       y: originY,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
-      w: Math.random() * 6 + 6,
-      h: Math.random() * 4 + 4,
+      w: Math.random() * 7 + 8,
+      h: Math.random() * 4.5 + 5,
       rx: Math.random() * Math.PI * 2,
       ry: Math.random() * Math.PI * 2,
       rz: Math.random() * Math.PI * 2,
@@ -413,11 +416,11 @@
       vrz: (Math.random() - 0.5) * 0.12,
       flutterPhase: Math.random() * Math.PI * 2,
       flutterFreq: 0.08 + Math.random() * 0.06,
-      gravity: 0.22 + Math.random() * 0.08,
+      gravity: 0.2 + Math.random() * 0.08,
       palette,
       shape: shapes[Math.floor(Math.random() * shapes.length)],
       alpha: 1,
-      decay: 0.0042 + Math.random() * 0.0036
+      decay: 0.0026 + Math.random() * 0.0024
     };
   }
 
@@ -560,18 +563,21 @@
     }
   }
 
-  function fireConfettiBurst(count = 110) {
+  function fireConfettiBurst(count = 220) {
     if (prefersReducedMotion || !ctx) return;
     const isMobile = canvasWidth < 640;
-    const total = isMobile ? Math.round(count * 0.72) : count;
+    const total = isMobile ? Math.round(count * 0.78) : count;
 
     for (let i = 0; i < total; i += 1) {
-      if (i % 3 === 0) {
-        particles.push(createConfettiPiece(canvasWidth * 0.14, canvasHeight * 0.8, -Math.PI / 2.6, isMobile ? 14 : 18));
-      } else if (i % 3 === 1) {
-        particles.push(createConfettiPiece(canvasWidth * 0.86, canvasHeight * 0.8, -Math.PI * 0.62, isMobile ? 14 : 18));
+      const mode = i % 4;
+      if (mode === 0) {
+        particles.push(createConfettiPiece(canvasWidth * 0.12, canvasHeight * 0.84, -Math.PI / 2.7, isMobile ? 13.5 : 16.5));
+      } else if (mode === 1) {
+        particles.push(createConfettiPiece(canvasWidth * 0.88, canvasHeight * 0.84, -Math.PI * 0.63, isMobile ? 13.5 : 16.5));
+      } else if (mode === 2) {
+        particles.push(createConfettiPiece(canvasWidth * 0.5, canvasHeight * 0.76, -Math.PI / 2, isMobile ? 12.5 : 15));
       } else {
-        particles.push(createConfettiPiece(canvasWidth * (0.2 + Math.random() * 0.6), -12, Math.PI / 2, isMobile ? 6 : 8));
+        particles.push(createConfettiPiece(canvasWidth * (0.1 + Math.random() * 0.8), -14, Math.PI / 2, isMobile ? 6.5 : 8.5));
       }
     }
     startConfettiLoop();
@@ -579,17 +585,17 @@
 
   function enableSubtleBackgroundConfetti() {
     if (prefersReducedMotion || !ctx || ambientEnabled) return;
-    const count = canvasWidth < 640 ? 9 : 14;
+    const count = canvasWidth < 640 ? 14 : 22;
     ambientConfetti = Array.from({ length: count }, () => createAmbientConfettiPiece(true));
     ambientEnabled = true;
     startConfettiLoop();
   }
 
-  function fireWelcomeShower() {
-    if (celebrationStarted || prefersReducedMotion || !ctx) return;
+  function fireWelcomeShower(force = false) {
+    if ((!force && celebrationStarted) || prefersReducedMotion || !ctx) return;
     celebrationStarted = true;
-    fireConfettiBurst(115);
-    setTimeout(() => fireConfettiBurst(65), 550);
+    fireConfettiBurst(220);
+    setTimeout(() => fireConfettiBurst(140), 420);
     setTimeout(enableSubtleBackgroundConfetti, 2200);
   }
 
@@ -617,17 +623,18 @@
     }
   }
 
-  function unlockCelebration(fullName, firstName) {
+  function unlockCelebration(fullName, firstName, forceConfetti = false) {
     applyPersonalizedName(fullName, firstName);
     writeLocalPass(fullName, firstName);
     updateShareLinks(fullName);
     if (checkinGate) checkinGate.hidden = true;
     document.body.classList.remove('awaiting-session', 'gate-open');
-    fireWelcomeShower();
+    fireWelcomeShower(forceConfetti);
     renderFeedbackUI();
   }
 
   function showGate() {
+    celebrationStarted = false;
     document.body.classList.remove('awaiting-session');
     if (checkinGate) {
       checkinGate.hidden = false;
@@ -659,7 +666,7 @@
     // Instant 0ms render for returning students using local cache while verifying cookie in background
     const cached = readLocalPass();
     if (cached && cached.name) {
-      unlockCelebration(cached.name, cached.firstName, 'cache');
+      unlockCelebration(cached.name, cached.firstName, false);
     } else {
       // Show Check-In Gate immediately so first-time visitors never wait 3s on a blank screen
       showGate();
@@ -682,7 +689,7 @@
       const data = await resp.json();
       syncFeedbackState(data);
       if (data.checkedIn && data.name) {
-        unlockCelebration(data.name, data.firstName, 'session');
+        unlockCelebration(data.name, data.firstName, false);
       } else if (cached) {
         // Cookie was cleared or removed by admin -> clear stale local cache and show gate
         try { localStorage.removeItem(CACHE_KEY); } catch {}
@@ -734,7 +741,7 @@
         }
 
         syncFeedbackState(data);
-        unlockCelebration(data.name, data.firstName);
+        unlockCelebration(data.name, data.firstName, true);
       } catch {
         setCheckinError('Network error while checking in. Please try again.');
       } finally {
@@ -1019,7 +1026,6 @@
   const btnCelebrateAgain = document.getElementById('btn-celebrate-again');
   const greetingSection = document.getElementById('greeting');
   const whatsappBtn = document.getElementById('btn-whatsapp-share');
-  const instagramBtn = document.getElementById('btn-instagram-share');
 
   function getCleanSiteUrl() {
     return window.location.protocol === 'https:'
@@ -1045,135 +1051,28 @@
     whatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
   }
 
-  async function buildStoryCardFile() {
-    const w = 1080;
-    const h = 1350;
-    const card = document.createElement('canvas');
-    card.width = w;
-    card.height = h;
-    const c = card.getContext('2d');
-
-    const bg = c.createLinearGradient(0, 0, w, h);
-    bg.addColorStop(0, '#060E24');
-    bg.addColorStop(0.55, '#112452');
-    bg.addColorStop(1, '#6E1423');
-    c.fillStyle = bg;
-    c.fillRect(0, 0, w, h);
-
-    c.strokeStyle = '#F4C430';
-    c.lineWidth = 8;
-    c.strokeRect(42, 42, w - 84, h - 84);
-
-    // Draw official logo if loaded
-    const logoEl = document.querySelector('.college-logo');
-    if (logoEl && logoEl.complete && logoEl.naturalWidth > 0) {
-      c.save();
-      c.beginPath();
-      c.arc(w / 2, 210, 96, 0, Math.PI * 2);
-      c.closePath();
-      c.fillStyle = '#FFFFFF';
-      c.fill();
-      c.clip();
-      c.drawImage(logoEl, w / 2 - 96, 114, 192, 192);
-      c.restore();
-    }
-
-    c.textAlign = 'center';
-    c.fillStyle = '#FFE99C';
-    c.font = '700 28px "Plus Jakarta Sans", sans-serif';
-    c.fillText('POORNAPRAJNA INSTITUTE OF MANAGEMENT', w / 2, 370);
-    c.fillText('DEPARTMENT OF MCA', w / 2, 412);
-
-    c.fillStyle = '#F4C430';
-    c.font = '800 54px "Cinzel", Georgia, serif';
-    const first = displayName && displayName !== 'MCA Star' ? displayName.split(' ')[0].toUpperCase() : 'FRESHER';
-    c.fillText(`HEY ${first}!`, w / 2, 540);
-
-    c.fillStyle = '#FFFAF0';
-    c.font = '800 62px "Cinzel", Georgia, serif';
-    c.fillText('WELCOME TO YOUR', w / 2, 635);
-    c.fillStyle = '#FFD966';
-    c.fillText('NEW BEGINNING!', w / 2, 712);
-
-    c.fillStyle = '#F5EBD4';
-    c.font = '600 34px "Plus Jakarta Sans", sans-serif';
-    c.fillText('Freshers Day 2026', w / 2, 830);
-    c.font = '500 30px "Plus Jakarta Sans", sans-serif';
-    c.fillText('28 November 2026  •  9:15 AM  •  Prajna Hall', w / 2, 888);
-
-    c.fillStyle = '#FFD966';
-    c.font = '700 32px "Plus Jakarta Sans", sans-serif';
-    c.fillText('Learn • Lead • Excel', w / 2, 1060);
-    c.fillStyle = 'rgba(255, 250, 240, 0.78)';
-    c.font = 'italic 26px "Plus Jakarta Sans", sans-serif';
-    c.fillText('Together Towards a Brighter Future...', w / 2, 1118);
-
-    return new Promise((resolve) => {
-      card.toBlob((blob) => {
-        if (!blob) return resolve(null);
-        resolve(new File([blob], 'poornaprajna-freshers-2026-story.png', { type: 'image/png' }));
-      }, 'image/png');
-    });
-  }
-
   updateShareLinks(displayName);
 
-  if (instagramBtn) {
-    instagramBtn.addEventListener('click', async () => {
-      const siteUrl = getCleanSiteUrl();
-      const caption = `Freshers Day 2026 — Poornaprajna Institute of Management, Dept. of MCA! Learn • Lead • Excel ${siteUrl}`;
-
-      try {
-        const storyFile = await buildStoryCardFile();
-        if (storyFile && navigator.canShare && navigator.canShare({ files: [storyFile] })) {
-          await navigator.share({
-            files: [storyFile],
-            title: 'Freshers Day 2026 | Poornaprajna MCA',
-            text: caption
-          });
-          return;
-        }
-        if (navigator.share) {
-          await navigator.share({
-            title: 'Freshers Day 2026 | Poornaprajna MCA',
-            text: caption,
-            url: siteUrl
-          });
-          return;
-        }
-        if (storyFile) {
-          const url = URL.createObjectURL(storyFile);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'poornaprajna-freshers-2026-story.png';
-          a.click();
-          setTimeout(() => URL.revokeObjectURL(url), 1500);
-          showCelebrationToast('Story card downloaded! Post it to your Instagram Story.');
-          return;
-        }
-      } catch (err) {
-        if (err && err.name === 'AbortError') return;
-      }
-
-      window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
-    });
+  function triggerBigCelebration() {
+    fireConfettiBurst(240);
+    setTimeout(() => fireConfettiBurst(150), 420);
   }
 
   if (btnCelebrate) {
     btnCelebrate.addEventListener('click', () => {
-      fireConfettiBurst(130);
+      triggerBigCelebration();
       showCelebrationToast(`Welcome, ${displayName}! You are part of the Poornaprajna family!`);
       if (greetingSection) {
         setTimeout(() => {
           greetingSection.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
-        }, 260);
+        }, 520);
       }
     });
   }
 
   if (btnCelebrateAgain) {
     btnCelebrateAgain.addEventListener('click', () => {
-      fireConfettiBurst(140);
+      triggerBigCelebration();
       showCelebrationToast('Meet • Mingle • Celebrate — Happy Freshers Day 2026!');
     });
   }
