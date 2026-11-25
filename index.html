@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Freshers Day 2026 | Poornaprajna Institute of Management – Department of MCA</title>
+  <meta name="description" content="Welcome Freshers 2026! Poornaprajna Institute of Management – Department of MCA invites you to Freshers Day 2026 on 28 November 2026 at 9:15 AM in Prajna Hall. Learn • Lead • Excel.">
+  <meta name="theme-color" content="#0A1633">
+
+  <!-- Open Graph / WhatsApp Link Preview -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ash123m.github.io/poornaprajna-freshers-2026/">
+  <meta property="og:title" content="Welcome Freshers 2026 | Poornaprajna Institute of Management – Department of MCA">
+  <meta property="og:description" content="A New Chapter Begins! Join us on 28 November 2026 at 9:15 AM in Prajna Hall. Together Towards a Brighter Future.">
+  <link rel="canonical" href="https://ash123m.github.io/poornaprajna-freshers-2026/">
+
+  <!-- Favicon & PWA -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Fonts with fast swap & system fallbacks -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body>
+  <!-- Layer 1: 3D Polyhedral Geometry, Harmonic Ribbons & Volumetric Balloons -->
+  <canvas id="bg-geometry-canvas" aria-hidden="true"></canvas>
+
+  <!-- Layer 2: 3D Rigid-Body Confetti & Metallic Foil Physics -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Subtle Ambient Vignette -->
+  <div class="ambient-vignette" aria-hidden="true"></div>
+
+  <!-- Minimal Floating Top Bar: Icon-Only Music Toggle -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <button
+        id="music-toggle"
+        class="music-icon-btn"
+        type="button"
+        aria-pressed="false"
+        aria-label="Toggle celebration chime music"
+        title="Play celebration music"
+      >
+        <!-- Off state: Muted Music Note -->
+        <svg class="icon-svg icon-music-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18V5l12-2v13"/>
+          <circle cx="6" cy="18" r="3"/>
+          <circle cx="18" cy="16" r="3"/>
+          <line x1="2" y1="2" x2="22" y2="22"/>
+        </svg>
+        <!-- On state: Animated Equalizer Waves -->
+        <svg class="icon-svg icon-music-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line class="eq-bar eq-1" x1="4" y1="10" x2="4" y2="14"/>
+          <line class="eq-bar eq-2" x1="9" y1="6" x2="9" y2="18"/>
+          <line class="eq-bar eq-3" x1="14" y1="4" x2="14" y2="20"/>
+          <line class="eq-bar eq-4" x1="19" y1="8" x2="19" y2="16"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- SECTION 1: Welcome Screen -->
+    <section id="welcome" class="section hero-section" aria-labelledby="hero-heading">
+      <div class="container hero-container">
+        <!-- Official College Logo -->
+        <div class="logo-wrapper reveal-item">
+          <div class="logo-ring">
+            <img
+              id="college-logo"
+              src="assets/logo.png"
+              alt="Poornaprajna Institute of Management Official Logo"
+              class="college-logo"
+              width="124"
+              height="124"
+              decoding="async"
+            >
+          </div>
+          <p class="institution-banner">
+            Poornaprajna Institute of Management – Department of MCA
+          </p>
+        </div>
+
+        <div class="badge-row reveal-item">
+          <span class="chapter-badge">
+            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>
+            </svg>
+            <span>A New Chapter Begins!</span>
+          </span>
+        </div>
+
+        <p class="hey-fresher reveal-item">HEY FRESHER!</p>
+
+        <h1 id="hero-heading" class="hero-title reveal-item">
+          WELCOME TO YOUR <span class="gold-shimmer">NEW BEGINNING!</span>
+        </h1>
+
+        <p class="welcome-year-tag reveal-item">WELCOME FRESHERS 2026</p>
+
+        <p class="hero-message reveal-item">
+          Your journey starts here. Make memories, build friendships and dream big!
+        </p>
+
+        <!-- Quick Event Summary Strip -->
+        <div class="hero-meta-strip reveal-item" aria-label="Quick event summary">
+          <span class="meta-item">
+            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>28 Nov 2026</span>
+          </span>
+          <span class="meta-sep" aria-hidden="true">•</span>
+          <span class="meta-item">
+            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <polyline points="12 7 12 12 15.5 14"/>
+            </svg>
+            <span>9:15 AM</span>
+          </span>
+          <span class="meta-sep" aria-hidden="true">•</span>
+          <span class="meta-item">
+            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 21s-6-5.33-6-10a6 6 0 1 1 12 0c0 4.67-6 10-6 10z"/>
+              <circle cx="12" cy="11" r="2.2"/>
+            </svg>
+            <span>Prajna Hall</span>
+          </span>
+        </div>
+
+        <div class="hero-cta-wrap reveal-item">
+          <button id="btn-celebrate" class="glow-btn primary-btn" type="button">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>
+              <path d="M19 3v4M21 5h-4M5 17v4M7 19H3"/>
+            </svg>
+            <span>LET'S CELEBRATE</span>
+          </button>
+        </div>
+      </div>
+
+      <a href="#greeting" class="scroll-cue" aria-label="Scroll to personal greeting">
+        <span class="scroll-mouse" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <!-- SECTION 2: Personal Greeting -->
+    <section id="greeting" class="section greeting-section" aria-labelledby="greeting-heading">
+      <div class="container">
+        <div class="glass-card personal-card reveal-on-scroll">
+          <div class="card-accent-line" aria-hidden="true"></div>
+          <div class="star-greeting-badge">
+            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>Welcome, <span id="fresher-name">MCA Star</span>!</span>
+          </div>
+          <h2 id="greeting-heading" class="section-heading">
+            You Are Now Part of the Poornaprajna Family!
+          </h2>
+          <p class="greeting-quote">
+            “Dear Fresher, today you are not just joining a college, you are becoming part of a family!”
+          </p>
+
+          <div class="dream-card">
+            <div class="dream-card-glow" aria-hidden="true"></div>
+            <p class="dream-card-text">
+              New Faces. New Dreams. Endless Possibilities.
+            </p>
+            <p class="dream-card-sub">
+              Theme: <strong>Learn • Lead • Excel</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Event Information -->
+    <section id="event-info" class="section info-section" aria-labelledby="info-heading">
+      <div class="container">
+        <div class="section-header reveal-on-scroll">
+          <span class="section-kicker">Mark Your Calendar</span>
+          <h2 id="info-heading" class="section-heading">Your Freshers Day Details</h2>
+        </div>
+
+        <div class="info-grid">
+          <article class="glass-card info-card reveal-on-scroll">
+            <div class="info-icon-wrap" aria-hidden="true">
+              <svg class="card-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2.5"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
+              </svg>
+            </div>
+            <p class="info-label">Date</p>
+            <p class="info-value">28-11-2026</p>
+            <p class="info-sub">28 November 2026</p>
+          </article>
+
+          <article class="glass-card info-card reveal-on-scroll">
+            <div class="info-icon-wrap" aria-hidden="true">
+              <svg class="card-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <polyline points="12 6.5 12 12 16 14"/>
+              </svg>
+            </div>
+            <p class="info-label">Time</p>
+            <p class="info-value">9:15 AM</p>
+            <p class="info-sub">Be there on time</p>
+          </article>
+
+          <article class="glass-card info-card reveal-on-scroll">
+            <div class="info-icon-wrap" aria-hidden="true">
+              <svg class="card-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M5 21V10l7-5 7 5v11"/>
+                <path d="M9 21v-6h6v6"/>
+                <path d="M12 5V2"/>
+              </svg>
+            </div>
+            <p class="info-label">Venue</p>
+            <p class="info-value">Prajna Hall</p>
+            <p class="info-sub">Poornaprajna Campus</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: Celebration -->
+    <section id="celebration" class="section celebration-section" aria-labelledby="celebration-heading">
+      <div class="container">
+        <div class="glass-card celebration-card reveal-on-scroll">
+          <span class="celebration-kicker">Department of MCA</span>
+          <h2 id="celebration-heading" class="celebration-title">
+            Meet • Mingle • Celebrate
+          </h2>
+          <p class="celebration-subtitle">
+            Your college memories begin here!
+          </p>
+
+          <div class="celebration-actions">
+            <button id="btn-celebrate-again" class="glow-btn gold-btn" type="button">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>
+                <path d="M19 3v4M21 5h-4"/>
+              </svg>
+              <span>CELEBRATE AGAIN</span>
+            </button>
+
+            <a
+              id="btn-whatsapp-share"
+              class="glow-btn whatsapp-btn"
+              href="https://wa.me/?text=Welcome%20to%20Poornaprajna%20Institute%20of%20Management%20%E2%80%93%20Department%20of%20MCA%20Freshers%20Day%202026!%20Join%20us%20on%2028%20Nov%202026%20at%209%3A15%20AM%20in%20Prajna%20Hall.%20Learn%20%E2%80%A2%20Lead%20%E2%80%A2%20Excel!"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.47 0 .11 5.36.11 11.95c0 2.11.55 4.16 1.6 5.98L0 24l6.23-1.63a11.9 11.9 0 0 0 5.83 1.49h.01c6.59 0 11.95-5.36 11.95-11.95 0-3.19-1.24-6.19-3.5-8.43zm-8.46 18.36h-.01a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.7.97.99-3.6-.24-.37a9.89 9.89 0 0 1-1.52-5.3c0-5.47 4.45-9.92 9.93-9.92 2.65 0 5.14 1.03 7.01 2.91a9.86 9.86 0 0 1 2.91 7.01c0 5.47-4.46 9.92-9.93 9.92zm5.45-7.43c-.3-.15-1.76-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.49s1.07 2.89 1.22 3.09c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35z"/>
+              </svg>
+              <span>Share on WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Live toast announcement for celebration taps -->
+  <div id="celebration-toast" class="celebration-toast" role="status" aria-live="polite" hidden>
+    <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+    <span id="celebration-toast-text">Welcome, MCA Star! Let the celebrations begin!</span>
+  </div>
+
+  <!-- SECTION 5: Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-crest-line" aria-hidden="true">
+        <span></span>
+        <span class="diamond">◆</span>
+        <span></span>
+      </div>
+      <p class="footer-inst">Poornaprajna Institute of Management</p>
+      <p class="footer-dept">Department of MCA</p>
+      <p class="footer-theme">Learn • Lead • Excel</p>
+      <p class="footer-tagline">Together Towards a Brighter Future...</p>
+      <p class="footer-qr-link-wrap">
+        <a href="qr.html" class="footer-qr-link">
+          <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <path d="M14 14h3v3h-3zM17 17h4v4h-4zM14 20h3"/>
+          </svg>
+          <span>Poster QR Studio</span>
+        </a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js?v=5"></script>
+</body>
+</html>

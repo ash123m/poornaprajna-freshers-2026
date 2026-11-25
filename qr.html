@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poster QR Studio | Poornaprajna MCA Freshers Day 2026</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0A1633;
+      --maroon: #6E1423;
+      --gold: #F4C430;
+      --gold-soft: #FFD966;
+      --cream: #FFFAF0;
+      --muted: rgba(255, 250, 240, 0.78);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--cream);
+      background:
+        radial-gradient(circle at 15% 12%, rgba(143, 29, 49, 0.42), transparent 46%),
+        radial-gradient(circle at 88% 20%, rgba(244, 196, 48, 0.14), transparent 40%),
+        linear-gradient(165deg, #060E24 0%, #0A1633 60%, #12183C 100%);
+      padding: 28px 16px 48px;
+    }
+
+    .studio-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      gap: 12px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      background: rgba(15, 29, 64, 0.72);
+      border: 1px solid rgba(244, 196, 48, 0.35);
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover { border-color: var(--gold); color: var(--gold-soft); }
+
+    .studio-card {
+      background: rgba(13, 25, 56, 0.72);
+      border: 1px solid rgba(244, 196, 48, 0.34);
+      border-radius: 24px;
+      padding: 28px 22px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 22px 54px rgba(0, 0, 0, 0.55);
+    }
+
+    h1 {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: clamp(1.35rem, 4vw, 1.9rem);
+      color: var(--gold-soft);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .url-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .url-controls label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gold-soft);
+    }
+
+    .url-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .url-input {
+      flex: 1 1 260px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(244, 196, 48, 0.4);
+      background: rgba(6, 14, 36, 0.85);
+      color: var(--cream);
+      font-size: 0.94rem;
+      font-family: inherit;
+    }
+
+    .url-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(244, 196, 48, 0.2);
+    }
+
+    .notice-banner {
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: rgba(110, 20, 35, 0.45);
+      border: 1px solid rgba(255, 217, 102, 0.38);
+      color: var(--cream);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      margin-bottom: 22px;
+    }
+
+    .notice-banner[hidden] { display: none; }
+
+    /* Printable Poster Card */
+    .poster-qr-sheet {
+      max-width: 420px;
+      margin: 0 auto 24px;
+      padding: 28px 24px;
+      border-radius: 22px;
+      background: #FFFAF0;
+      color: #0A1633;
+      text-align: center;
+      border: 4px solid #0A1633;
+      box-shadow: 0 0 0 3px #F4C430, 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .sheet-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: contain;
+    }
+
+    .sheet-org {
+      text-align: left;
+    }
+
+    .sheet-org-title {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #0A1633;
+      line-height: 1.2;
+    }
+
+    .sheet-org-dept {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #6E1423;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .sheet-event {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 1.28rem;
+      font-weight: 800;
+      color: #6E1423;
+      margin-bottom: 4px;
+    }
+
+    .sheet-cta {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #0A1633;
+      margin-bottom: 16px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .qr-frame {
+      display: inline-flex;
+      padding: 14px;
+      border-radius: 16px;
+      background: #FFFFFF;
+      border: 2px solid #0A1633;
+      margin-bottom: 14px;
+    }
+
+    #qr-preview-canvas {
+      display: block;
+      width: 240px;
+      height: 240px;
+      image-rendering: pixelated;
+    }
+
+    .sheet-details {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #0A1633;
+      margin-bottom: 6px;
+    }
+
+    .sheet-url-caption {
+      font-size: 0.7rem;
+      color: #4A5568;
+      word-break: break-all;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 217, 102, 0.5);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #F4C430, #FFD966);
+      color: #060E24;
+    }
+
+    .btn-maroon {
+      background: linear-gradient(135deg, #8F1D31, #6E1423);
+      color: #FFFAF0;
+    }
+
+    .btn-outline {
+      background: rgba(10, 22, 51, 0.8);
+      color: #FFFAF0;
+    }
+
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        padding: 0;
+      }
+      .top-nav,
+      .studio-card > h1,
+      .studio-card > .subtitle,
+      .url-controls,
+      .notice-banner,
+      .action-row {
+        display: none !important;
+      }
+      .studio-card {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0;
+      }
+      .poster-qr-sheet {
+        box-shadow: none !important;
+        margin: 24px auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="studio-wrap">
+    <nav class="top-nav">
+      <a href="index.html" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        <span>Back to Welcome Page</span>
+      </a>
+    </nav>
+
+    <section class="studio-card">
+      <h1>Poster QR Code Studio</h1>
+      <p class="subtitle">Generate, download (PNG / SVG), or print a high-contrast QR card for your Freshers Day 2026 poster.</p>
+
+      <div class="url-controls">
+        <label for="qr-url-input">Target Website URL</label>
+        <div class="url-row">
+          <input
+            id="qr-url-input"
+            class="url-input"
+            type="url"
+            placeholder="https://YOUR-USERNAME.github.io/poornaprajna-freshers-2026/"
+            spellcheck="false"
+          >
+          <button id="btn-update-qr" class="btn btn-gold" type="button">Generate QR</button>
+        </div>
+      </div>
+
+      <div id="localhost-warning" class="notice-banner" hidden>
+        <strong>Before printing posters:</strong> The preview is currently using a local or placeholder URL. After deploying to GitHub Pages, open this page on your live URL (or paste your live <code>https://...github.io/poornaprajna-freshers-2026/</code> link above) before printing.
+      </div>
+
+      <div class="poster-qr-sheet" id="printable-sheet">
+        <div class="sheet-header">
+          <img src="assets/logo.png" alt="Poornaprajna Logo" class="sheet-logo">
+          <div class="sheet-org">
+            <div class="sheet-org-title">Poornaprajna Institute of Management</div>
+            <div class="sheet-org-dept">Department of MCA</div>
+          </div>
+        </div>
+        <div class="sheet-event">Freshers Day 2026</div>
+        <div class="sheet-cta">Scan for Your Welcome Experience</div>
+
+        <div class="qr-frame">
+          <canvas id="qr-preview-canvas" width="240" height="240" aria-label="Scannable QR Code"></canvas>
+        </div>
+
+        <div class="sheet-details">28 November 2026 • 9:15 AM • Prajna Hall</div>
+        <div class="sheet-url-caption" id="qr-url-caption"></div>
+      </div>
+
+      <div class="action-row">
+        <button id="btn-download-png" class="btn btn-gold" type="button">Download PNG (2000px)</button>
+        <button id="btn-download-svg" class="btn btn-maroon" type="button">Download SVG (Vector)</button>
+        <button id="btn-print-qr" class="btn btn-outline" type="button">Print Poster QR</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="qr-engine.js"></script>
+  <script>
+    (() => {
+      'use strict';
+
+      const input = document.getElementById('qr-url-input');
+      const updateBtn = document.getElementById('btn-update-qr');
+      const warningEl = document.getElementById('localhost-warning');
+      const previewCanvas = document.getElementById('qr-preview-canvas');
+      const captionEl = document.getElementById('qr-url-caption');
+      const btnPng = document.getElementById('btn-download-png');
+      const btnSvg = document.getElementById('btn-download-svg');
+      const btnPrint = document.getElementById('btn-print-qr');
+
+      const DEPLOYED_URL = 'https://ash123m.github.io/poornaprajna-freshers-2026/';
+      const currentLive = window.location.href.replace(/qr\.html.*$/i, '');
+      const isLocal = /^(http:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])/i.test(window.location.origin) || window.location.protocol === 'file:';
+
+      input.value = isLocal ? DEPLOYED_URL : currentLive;
+      let latestQr = null;
+
+      function updateWarning(urlStr) {
+        const localTarget = /(localhost|127\.0\.0\.1|0\.0\.0\.0|YOUR-USERNAME)/i.test(urlStr) || !/^https:\/\//i.test(urlStr);
+        warningEl.hidden = !localTarget;
+      }
+
+      function renderToCanvas(canvas, qr, totalSize, darkColor, lightColor) {
+        const ctx = canvas.getContext('2d');
+        const quiet = 4;
+        const modulesTotal = qr.size + quiet * 2;
+        const cell = totalSize / modulesTotal;
+
+        canvas.width = totalSize;
+        canvas.height = totalSize;
+
+        ctx.fillStyle = lightColor;
+        ctx.fillRect(0, 0, totalSize, totalSize);
+
+        ctx.fillStyle = darkColor;
+        for (let r = 0; r < qr.size; r += 1) {
+          for (let c = 0; c < qr.size; c += 1) {
+            if (qr.modules[r][c]) {
+              const x = Math.floor((c + quiet) * cell);
+              const y = Math.floor((r + quiet) * cell);
+              const nextX = Math.floor((c + quiet + 1) * cell);
+              const nextY = Math.floor((r + quiet + 1) * cell);
+              ctx.fillRect(x, y, nextX - x, nextY - y);
+            }
+          }
+        }
+      }
+
+      function buildSvgString(qr, darkColor, lightColor) {
+        const quiet = 4;
+        const dim = qr.size + quiet * 2;
+        let paths = '';
+        for (let r = 0; r < qr.size; r += 1) {
+          for (let c = 0; c < qr.size; c += 1) {
+            if (qr.modules[r][c]) {
+              paths += `M${c + quiet},${r + quiet}h1v1h-1z`;
+            }
+          }
+        }
+        return (
+          `<?xml version="1.0" encoding="UTF-8"?>\n` +
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" shape-rendering="crispEdges">\n` +
+          `  <rect width="${dim}" height="${dim}" fill="${lightColor}"/>\n` +
+          `  <path d="${paths}" fill="${darkColor}"/>\n` +
+          `</svg>\n`
+        );
+      }
+
+      function refreshQR() {
+        const url = input.value.trim();
+        if (!url) return;
+        updateWarning(url);
+        latestQr = window.PIMQR.encodeQR(url, 'H');
+        renderToCanvas(previewCanvas, latestQr, 480, '#0A1633', '#FFFFFF');
+        previewCanvas.style.width = '240px';
+        previewCanvas.style.height = '240px';
+        captionEl.textContent = url;
+      }
+
+      updateBtn.addEventListener('click', refreshQR);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') refreshQR();
+      });
+
+      btnPng.addEventListener('click', () => {
+        if (!latestQr) return;
+        const exportCanvas = document.createElement('canvas');
+        renderToCanvas(exportCanvas, latestQr, 2000, '#0A1633', '#FFFFFF');
+        const link = document.createElement('a');
+        link.download = 'poornaprajna-freshers-2026-qr.png';
+        link.href = exportCanvas.toDataURL('image/png');
+        link.click();
+      });
+
+      btnSvg.addEventListener('click', () => {
+        if (!latestQr) return;
+        const svgStr = buildSvgString(latestQr, '#0A1633', '#FFFFFF');
+        const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+        const link = document.createElement('a');
+        link.download = 'poornaprajna-freshers-2026-qr.svg';
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1500);
+      });
+
+      btnPrint.addEventListener('click', () => {
+        window.print();
+      });
+
+      refreshQR();
+    })();
+  </script>
+</body>
+</html>
