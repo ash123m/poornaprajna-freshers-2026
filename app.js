@@ -34,7 +34,7 @@
   // ---------------------------------------------------------------------------
   // 2. Personalized State & Server-Side Session Gate
   // ---------------------------------------------------------------------------
-  const heyFresherEl = document.getElementById('hey-fresher-text');
+  const heroFresherNameEl = document.getElementById('hero-fresher-name');
   const fresherNameEl = document.getElementById('fresher-name');
   const checkinGate = document.getElementById('checkin-gate');
   const checkinForm = document.getElementById('checkin-form');
@@ -58,8 +58,8 @@
     const cleanFirst = String(firstName || cleanFull.split(' ')[0] || 'FRESHER').trim();
     displayName = cleanFull;
 
-    if (heyFresherEl) {
-      heyFresherEl.textContent = `HEY ${cleanFirst.toUpperCase()}!`;
+    if (heroFresherNameEl) {
+      heroFresherNameEl.textContent = cleanFirst.toUpperCase();
     }
     if (fresherNameEl) {
       fresherNameEl.textContent = cleanFull;
