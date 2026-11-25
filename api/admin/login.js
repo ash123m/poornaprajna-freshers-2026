@@ -9,6 +9,7 @@ const {
   sendJson,
   readJsonBody
 } = require('../_lib/auth');
+const { listAllCheckins, getFeedbackUnlockAt } = require('../_lib/db');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -33,7 +34,18 @@ module.exports = async function handler(req, res) {
     });
     setCookie(res, ADMIN_COOKIE, token, req, 12 * 60 * 60);
 
-    return sendJson(res, 200, { ok: true });
+    // Return initial entries + timer in the same round-trip for faster unlock
+    const [entries, feedbackUnlockAt] = await Promise.all([
+      listAllCheckins(),
+      getFeedbackUnlockAt()
+    ]);
+
+    return sendJson(res, 200, {
+      ok: true,
+      entries,
+      feedbackUnlockAt,
+      serverNow: new Date().toISOString()
+    });
   } catch (err) {
     console.error('Admin login error:', err);
     return sendJson(res, 500, { ok: false, error: 'Server error during sign-in.' });

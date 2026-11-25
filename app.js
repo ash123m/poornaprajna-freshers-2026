@@ -146,14 +146,18 @@
   function resizeBackgroundCanvasOnly() {
     if (!bgCanvas || !bgCtx) return;
     const nextW = window.innerWidth;
-    const nextH = window.innerHeight;
-    // Ignore mobile address-bar show/hide height changes during up/down scrolling
-    if (bgW === nextW && Math.abs(nextH - bgH) < 150) return;
+    // Cover full device height (including hidden mobile URL bar) so vertical scroll never stretches or jumps
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    const maxTouchH = isTouch ? Math.max(window.innerHeight, window.screen?.height || window.innerHeight) : window.innerHeight;
+    const nextH = bgH && bgW === nextW && isTouch ? bgH : maxTouchH;
+    if (bgW === nextW && bgH === nextH) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const prevW = bgW || nextW;
     bgW = nextW;
     bgH = nextH;
+    bgCanvas.style.width = `${bgW}px`;
+    bgCanvas.style.height = `${bgH}px`;
     bgCanvas.width = Math.floor(bgW * dpr);
     bgCanvas.height = Math.floor(bgH * dpr);
     bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -373,12 +377,16 @@
   function resizeConfettiCanvas() {
     if (!canvas || !ctx) return;
     const nextW = window.innerWidth;
-    const nextH = window.innerHeight;
-    if (canvasWidth === nextW && Math.abs(nextH - canvasHeight) < 150) return;
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    const maxTouchH = isTouch ? Math.max(window.innerHeight, window.screen?.height || window.innerHeight) : window.innerHeight;
+    const nextH = canvasHeight && canvasWidth === nextW && isTouch ? canvasHeight : maxTouchH;
+    if (canvasWidth === nextW && canvasHeight === nextH) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvasWidth = nextW;
     canvasHeight = nextH;
+    canvas.style.width = `${canvasWidth}px`;
+    canvas.style.height = `${canvasHeight}px`;
     canvas.width = Math.floor(canvasWidth * dpr);
     canvas.height = Math.floor(canvasHeight * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -841,7 +849,8 @@
       feedbackFormEl.hidden = true;
       feedbackDoneEl.hidden = false;
       if (feedbackDoneTextEl && feedbackRatingVal) {
-        feedbackDoneTextEl.textContent = `Thank you! You rated Freshers Day 2026 ${feedbackRatingVal}/5.`;
+        const starWord = feedbackRatingVal === 1 ? 'star' : 'stars';
+        feedbackDoneTextEl.textContent = `Thank you! You rated Freshers Day 2026: ${feedbackRatingVal} / 5 ${starWord}.`;
       }
       return;
     }
@@ -960,6 +969,48 @@
       renderFeedbackUI();
     }
   }, 1000);
+
+  // Live-sync unlock timer changes from Admin without needing a page refresh
+  let lastSessionSyncAt = 0;
+  async function syncSessionSilently() {
+    if (window.location.protocol === 'file:' || feedbackSubmitted) return;
+    if (document.visibilityState !== 'visible') return;
+    const now = Date.now();
+    if (now - lastSessionSyncAt < 4000) return;
+    lastSessionSyncAt = now;
+
+    try {
+      const resp = await fetch('/api/session', {
+        method: 'GET',
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      syncFeedbackState(data);
+    } catch {
+      // Non-blocking background sync
+    }
+  }
+
+  setInterval(() => {
+    // Poll every 15s only while tab is visible and feedback is still locked/unsubmitted
+    if (!feedbackSubmitted && document.visibilityState === 'visible' && getServerNowMs() < feedbackUnlockMs) {
+      syncSessionSilently();
+    }
+  }, 15000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !feedbackSubmitted) {
+      syncSessionSilently();
+    }
+  });
+
+  window.addEventListener('focus', () => {
+    if (!feedbackSubmitted) {
+      syncSessionSilently();
+    }
+  });
 
   // ---------------------------------------------------------------------------
   // 6. Button Actions ("LET'S CELEBRATE", "CELEBRATE AGAIN", WhatsApp)

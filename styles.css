@@ -275,21 +275,19 @@ body.gate-open {
   margin-bottom: 6px;
 }
 
-/* Fullscreen Canvases */
+/* Fullscreen Canvases (top/left + explicit JS pixel size prevents 1cm mobile URL-bar stretch) */
 #bg-geometry-canvas {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
   pointer-events: none;
   z-index: 0;
 }
 
 #confetti-canvas {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
   pointer-events: none;
   z-index: 50;
 }

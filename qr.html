@@ -15,88 +15,67 @@
       --gold: #F4C430;
       --gold-soft: #FFD966;
       --cream: #FFFAF0;
-      --muted: rgba(255, 250, 240, 0.78);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
+      min-height: 100svh;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       color: var(--cream);
       background:
         radial-gradient(circle at 15% 12%, rgba(143, 29, 49, 0.42), transparent 46%),
         radial-gradient(circle at 88% 20%, rgba(244, 196, 48, 0.14), transparent 40%),
         linear-gradient(165deg, #060E24 0%, #0A1633 60%, #12183C 100%);
-      padding: 24px 14px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 14px 32px;
     }
 
     .studio-wrap {
-      max-width: 720px;
+      width: 100%;
+      max-width: 440px;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
     }
 
     .top-nav {
+      width: 100%;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      gap: 12px;
+      justify-content: flex-start;
     }
 
     .back-link {
+      width: 42px;
+      height: 42px;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 9px 16px;
-      border-radius: 999px;
+      justify-content: center;
+      border-radius: 50%;
       background: rgba(15, 29, 64, 0.72);
       border: 1px solid rgba(244, 196, 48, 0.35);
       color: var(--cream);
       text-decoration: none;
-      font-size: 0.86rem;
-      font-weight: 600;
     }
 
     .back-link:hover { border-color: var(--gold); color: var(--gold-soft); }
 
-    .studio-card {
-      background: rgba(13, 25, 56, 0.72);
-      border: 1px solid rgba(244, 196, 48, 0.34);
-      border-radius: 24px;
-      padding: 24px 16px;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 22px 54px rgba(0, 0, 0, 0.55);
-    }
-
-    h1 {
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: clamp(1.25rem, 4vw, 1.8rem);
-      color: var(--gold-soft);
-      text-align: center;
-      margin-bottom: 6px;
-    }
-
-    .subtitle {
-      text-align: center;
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-bottom: 22px;
-    }
-
-    /* Printable Poster Card */
+    /* Minimal Adaptive Poster Card */
     .poster-qr-sheet {
       width: 100%;
-      max-width: 400px;
-      margin: 0 auto 24px;
-      padding: 24px 18px;
+      padding: clamp(20px, 5vw, 28px) clamp(16px, 4vw, 24px);
       border-radius: 22px;
       background: #FFFAF0;
       color: #0A1633;
       text-align: center;
       border: 4px solid #0A1633;
-      box-shadow: 0 0 0 3px #F4C430, 0 18px 40px rgba(0, 0, 0, 0.45);
-      overflow: hidden;
+      box-shadow: 0 0 0 3px #F4C430, 0 18px 44px rgba(0, 0, 0, 0.52);
     }
 
     .sheet-header {
@@ -108,8 +87,8 @@
     }
 
     .sheet-logo {
-      width: 48px;
-      height: 48px;
+      width: clamp(42px, 10vw, 50px);
+      height: clamp(42px, 10vw, 50px);
       flex-shrink: 0;
       border-radius: 50%;
       object-fit: contain;
@@ -121,14 +100,14 @@
 
     .sheet-org-title {
       font-family: 'Cinzel', Georgia, serif;
-      font-size: 0.84rem;
+      font-size: clamp(0.78rem, 2.6vw, 0.88rem);
       font-weight: 800;
       color: #0A1633;
       line-height: 1.2;
     }
 
     .sheet-org-dept {
-      font-size: 0.74rem;
+      font-size: clamp(0.7rem, 2.2vw, 0.76rem);
       font-weight: 800;
       color: #6E1423;
       letter-spacing: 0.06em;
@@ -137,14 +116,14 @@
 
     .sheet-event {
       font-family: 'Cinzel', Georgia, serif;
-      font-size: 1.22rem;
+      font-size: clamp(1.12rem, 4vw, 1.32rem);
       font-weight: 800;
       color: #6E1423;
       margin-bottom: 4px;
     }
 
     .sheet-cta {
-      font-size: 0.82rem;
+      font-size: clamp(0.74rem, 2.4vw, 0.84rem);
       font-weight: 700;
       color: #0A1633;
       margin-bottom: 16px;
@@ -157,7 +136,7 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      max-width: 256px;
+      max-width: 248px;
       margin: 0 auto 14px;
       padding: 12px;
       border-radius: 16px;
@@ -168,26 +147,20 @@
     #qr-preview-canvas {
       display: block;
       width: 100%;
-      max-width: 228px;
+      max-width: 220px;
       height: auto;
       aspect-ratio: 1 / 1;
       image-rendering: pixelated;
     }
 
     .sheet-details {
-      font-size: 0.8rem;
+      font-size: clamp(0.74rem, 2.4vw, 0.82rem);
       font-weight: 700;
       color: #0A1633;
-      margin-bottom: 6px;
-    }
-
-    .sheet-url-caption {
-      font-size: 0.68rem;
-      color: #4A5568;
-      word-break: break-all;
     }
 
     .action-row {
+      width: 100%;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -195,10 +168,10 @@
     }
 
     .btn {
+      flex: 1 1 150px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
       padding: 12px 18px;
       border-radius: 999px;
       border: 1px solid rgba(255, 217, 102, 0.5);
@@ -206,7 +179,6 @@
       font-size: 0.86rem;
       font-weight: 700;
       cursor: pointer;
-      text-decoration: none;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -221,86 +193,40 @@
       background: linear-gradient(135deg, #8F1D31, #6E1423);
       color: #FFFAF0;
     }
-
-    .btn-outline {
-      background: rgba(10, 22, 51, 0.8);
-      color: #FFFAF0;
-    }
-
-    @media (min-width: 640px) {
-      .studio-card {
-        padding: 28px 24px;
-      }
-      .poster-qr-sheet {
-        padding: 28px 24px;
-      }
-    }
-
-    @media print {
-      body {
-        background: #FFFFFF !important;
-        padding: 0;
-      }
-      .top-nav,
-      .studio-card > h1,
-      .studio-card > .subtitle,
-      .action-row {
-        display: none !important;
-      }
-      .studio-card {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0;
-      }
-      .poster-qr-sheet {
-        box-shadow: none !important;
-        margin: 24px auto;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="studio-wrap">
     <nav class="top-nav">
-      <a href="index.html" class="back-link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <a href="index.html" class="back-link" aria-label="Back to Welcome Page" title="Back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        <span>Back to Welcome Page</span>
       </a>
     </nav>
 
-    <section class="studio-card">
-      <h1>Official Event Poster QR Code</h1>
-      <p class="subtitle">Fixed QR code for this Freshers Day 2026 website — ready to scan, download, or print.</p>
-
-      <div class="poster-qr-sheet" id="printable-sheet">
-        <div class="sheet-header">
-          <img src="assets/logo.png" alt="Poornaprajna Logo" class="sheet-logo">
-          <div class="sheet-org">
-            <div class="sheet-org-title">Poornaprajna Institute of Management</div>
-            <div class="sheet-org-dept">Department of MCA</div>
-          </div>
+    <div class="poster-qr-sheet" id="printable-sheet">
+      <div class="sheet-header">
+        <img src="assets/logo.png" alt="Poornaprajna Logo" class="sheet-logo">
+        <div class="sheet-org">
+          <div class="sheet-org-title">Poornaprajna Institute of Management</div>
+          <div class="sheet-org-dept">Department of MCA</div>
         </div>
-        <div class="sheet-event">Freshers Day 2026</div>
-        <div class="sheet-cta">Scan for Your Welcome Experience</div>
+      </div>
+      <div class="sheet-event">Freshers Day 2026</div>
+      <div class="sheet-cta">Scan for Your Welcome Experience</div>
 
-        <div class="qr-frame">
-          <canvas id="qr-preview-canvas" width="480" height="480" aria-label="Scannable QR Code"></canvas>
-        </div>
-
-        <div class="sheet-details">28 November 2026 • 9:15 AM • Prajna Hall</div>
-        <div class="sheet-url-caption" id="qr-url-caption"></div>
+      <div class="qr-frame">
+        <canvas id="qr-preview-canvas" width="480" height="480" aria-label="Scannable QR Code"></canvas>
       </div>
 
-      <div class="action-row">
-        <button id="btn-download-png" class="btn btn-gold" type="button">Download PNG (2000px)</button>
-        <button id="btn-download-svg" class="btn btn-maroon" type="button">Download SVG (Vector)</button>
-        <button id="btn-print-qr" class="btn btn-outline" type="button">Print Poster QR</button>
-      </div>
-    </section>
+      <div class="sheet-details">28 November 2026 • 9:15 AM • Prajna Hall</div>
+    </div>
+
+    <div class="action-row">
+      <button id="btn-download-png" class="btn btn-gold" type="button">Download PNG</button>
+    </div>
   </div>
 
   <script src="qr-engine.js"></script>
@@ -309,10 +235,7 @@
       'use strict';
 
       const previewCanvas = document.getElementById('qr-preview-canvas');
-      const captionEl = document.getElementById('qr-url-caption');
       const btnPng = document.getElementById('btn-download-png');
-      const btnSvg = document.getElementById('btn-download-svg');
-      const btnPrint = document.getElementById('btn-print-qr');
 
       const FALLBACK_LIVE_URL = 'https://pim-freshers-2026.vercel.app/';
       const currentLive = window.location.href.replace(/qr\.html.*$/i, '');
@@ -345,29 +268,8 @@
         }
       }
 
-      function buildSvgString(qr, darkColor, lightColor) {
-        const quiet = 4;
-        const dim = qr.size + quiet * 2;
-        let paths = '';
-        for (let r = 0; r < qr.size; r += 1) {
-          for (let c = 0; c < qr.size; c += 1) {
-            if (qr.modules[r][c]) {
-              paths += `M${c + quiet},${r + quiet}h1v1h-1z`;
-            }
-          }
-        }
-        return (
-          `<?xml version="1.0" encoding="UTF-8"?>\n` +
-          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" shape-rendering="crispEdges">\n` +
-          `  <rect width="${dim}" height="${dim}" fill="${lightColor}"/>\n` +
-          `  <path d="${paths}" fill="${darkColor}"/>\n` +
-          `</svg>\n`
-        );
-      }
-
       const staticQr = window.PIMQR.encodeQR(targetUrl, 'H');
       renderToCanvas(previewCanvas, staticQr, 480, '#0A1633', '#FFFFFF');
-      captionEl.textContent = targetUrl;
 
       btnPng.addEventListener('click', () => {
         const exportCanvas = document.createElement('canvas');
@@ -376,20 +278,6 @@
         link.download = 'poornaprajna-freshers-2026-qr.png';
         link.href = exportCanvas.toDataURL('image/png');
         link.click();
-      });
-
-      btnSvg.addEventListener('click', () => {
-        const svgStr = buildSvgString(staticQr, '#0A1633', '#FFFFFF');
-        const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-        const link = document.createElement('a');
-        link.download = 'poornaprajna-freshers-2026-qr.svg';
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(link.href), 1500);
-      });
-
-      btnPrint.addEventListener('click', () => {
-        window.print();
       });
     })();
   </script>

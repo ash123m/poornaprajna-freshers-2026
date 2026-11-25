@@ -202,7 +202,7 @@ async function listAllCheckins() {
     `SELECT id, roll_no, full_name, first_name, entry_source, reverify_count,
             checked_in_at, last_seen_at, feedback_rating, feedback_comment, feedback_submitted_at
      FROM freshers_checkins
-     ORDER BY checked_in_at DESC`
+     ORDER BY LOWER(full_name) ASC, roll_no ASC`
   );
   return rows;
 }

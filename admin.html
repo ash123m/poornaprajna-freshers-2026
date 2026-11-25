@@ -125,6 +125,94 @@
       color: #fecaca;
     }
 
+    .btn-edit {
+      padding: 6px 12px;
+      font-size: 0.76rem;
+      background: rgba(244, 196, 48, 0.16);
+      border-color: rgba(244, 196, 48, 0.42);
+      color: var(--gold-soft);
+    }
+
+    .row-actions {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn:disabled {
+      opacity: 0.65;
+      cursor: wait;
+      transform: none;
+    }
+
+    /* Mobile-Adaptive Card View for Records (no horizontal scrolling) */
+    @media (max-width: 720px) {
+      .card {
+        padding: 18px 14px;
+      }
+
+      .table-controls input[type="search"] {
+        max-width: 100%;
+      }
+
+      .table-wrap {
+        overflow-x: visible;
+      }
+
+      table,
+      thead,
+      tbody,
+      th,
+      td,
+      tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tbody tr {
+        background: rgba(6, 14, 36, 0.72);
+        border: 1px solid rgba(244, 196, 48, 0.24);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+      }
+
+      tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(244, 196, 48, 0.08);
+        white-space: normal;
+        text-align: right;
+      }
+
+      tbody td:last-child {
+        border-bottom: none;
+        padding-top: 10px;
+        justify-content: flex-end;
+      }
+
+      tbody td[data-label]::before {
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--gold-soft);
+        text-align: left;
+        flex-shrink: 0;
+      }
+
+      .feedback-cell {
+        max-width: none;
+      }
+    }
+
     .btn:hover, .pill-link:hover { transform: translateY(-1px); border-color: var(--gold-soft); }
 
     .card {
@@ -503,6 +591,7 @@
       const dashboardSection = document.getElementById('dashboard-section');
       const pinForm = document.getElementById('pin-form');
       const pinInput = document.getElementById('admin-pin');
+      const pinSubmitBtn = document.getElementById('pin-submit');
       const togglePinBtn = document.getElementById('toggle-pin-btn');
       const pinError = document.getElementById('pin-error');
 
@@ -563,14 +652,17 @@
 
       function renderTable() {
         const q = (searchInput.value || '').trim().toLowerCase();
-        const filtered = q
+        const filtered = (q
           ? allEntries.filter(
               (r) =>
                 String(r.roll_no).toLowerCase().includes(q) ||
                 String(r.full_name).toLowerCase().includes(q) ||
                 String(r.feedback_comment || '').toLowerCase().includes(q)
             )
-          : allEntries;
+          : [...allEntries]
+        ).sort((a, b) =>
+          String(a.full_name || '').localeCompare(String(b.full_name || ''), undefined, { sensitivity: 'base' })
+        );
 
         if (!filtered.length) {
           tbody.innerHTML = '<tr><td colspan="7">No matching entries yet.</td></tr>';
@@ -582,15 +674,19 @@
           const tr = document.createElement('tr');
 
           const tdIdx = document.createElement('td');
+          tdIdx.setAttribute('data-label', '#');
           tdIdx.textContent = String(idx + 1);
 
           const tdRoll = document.createElement('td');
+          tdRoll.setAttribute('data-label', 'Roll No');
           tdRoll.textContent = row.roll_no;
 
           const tdName = document.createElement('td');
+          tdName.setAttribute('data-label', 'Full Name');
           tdName.textContent = row.full_name;
 
           const tdRating = document.createElement('td');
+          tdRating.setAttribute('data-label', 'Rating');
           if (row.feedback_rating) {
             const pill = document.createElement('span');
             pill.className = 'rating-pill';
@@ -601,13 +697,33 @@
           }
 
           const tdComment = document.createElement('td');
+          tdComment.setAttribute('data-label', 'Feedback');
           tdComment.className = 'feedback-cell';
           tdComment.textContent = row.feedback_comment || '—';
 
           const tdTime = document.createElement('td');
+          tdTime.setAttribute('data-label', 'Checked In');
           tdTime.textContent = formatIST(row.checked_in_at);
 
           const tdAct = document.createElement('td');
+          const actionsWrap = document.createElement('div');
+          actionsWrap.className = 'row-actions';
+
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'btn btn-edit';
+          editBtn.textContent = 'Edit';
+          editBtn.addEventListener('click', () => {
+            ovName.value = row.full_name;
+            ovRoll.value = row.roll_no;
+            ovForce.checked = true;
+            ovForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+              ovName.focus();
+              ovName.select();
+            }, 200);
+          });
+
           const delBtn = document.createElement('button');
           delBtn.type = 'button';
           delBtn.className = 'btn btn-danger';
@@ -617,7 +733,8 @@
               removeEntry(row.roll_no);
             }
           });
-          tdAct.appendChild(delBtn);
+          actionsWrap.append(editBtn, delBtn);
+          tdAct.appendChild(actionsWrap);
 
           tr.append(tdIdx, tdRoll, tdName, tdRating, tdComment, tdTime, tdAct);
           tbody.appendChild(tr);
@@ -689,6 +806,18 @@
         });
       }
 
+      function applyDashboardPayload(data) {
+        allEntries = data.entries || [];
+        pinSection.hidden = true;
+        dashboardSection.hidden = false;
+        if (lockBtn) lockBtn.hidden = false;
+        updateKpis();
+        renderTable();
+        if (data.feedbackUnlockAt) {
+          showTimerStatus(data.feedbackUnlockAt, data.serverNow);
+        }
+      }
+
       async function loadEntries() {
         const resp = await fetch('/api/admin/entries', { credentials: 'same-origin', cache: 'no-store' });
         if (resp.status === 401) {
@@ -701,15 +830,7 @@
         if (!resp.ok || !data.ok) {
           throw new Error(data.error || 'Failed to load entries');
         }
-        allEntries = data.entries || [];
-        pinSection.hidden = true;
-        dashboardSection.hidden = false;
-        if (lockBtn) lockBtn.hidden = false;
-        updateKpis();
-        renderTable();
-        if (data.feedbackUnlockAt) {
-          showTimerStatus(data.feedbackUnlockAt, data.serverNow);
-        }
+        applyDashboardPayload(data);
         return true;
       }
 
@@ -726,6 +847,10 @@
       pinForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         showMsg(pinError, '', false);
+        if (pinSubmitBtn) {
+          pinSubmitBtn.disabled = true;
+          pinSubmitBtn.textContent = 'Unlocking...';
+        }
         try {
           const resp = await fetch('/api/admin/login', {
             method: 'POST',
@@ -742,9 +867,18 @@
             return;
           }
           pinInput.value = '';
-          await loadEntries();
+          if (Array.isArray(data.entries)) {
+            applyDashboardPayload(data);
+          } else {
+            await loadEntries();
+          }
         } catch {
           showMsg(pinError, 'Unable to reach /api/admin/login. Deploy to Vercel with DATABASE_URL to use Coordinator Portal.', true);
+        } finally {
+          if (pinSubmitBtn) {
+            pinSubmitBtn.disabled = false;
+            pinSubmitBtn.textContent = 'Unlock Portal';
+          }
         }
       });
 
