@@ -661,8 +661,28 @@
     window.addEventListener('resize', resizeConfettiCanvas, { passive: true });
   }
 
+  const CACHE_KEY = 'pim_fresher_cache';
+
+  function readLocalPass() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeLocalPass(fullName, firstName) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ name: fullName, firstName }));
+    } catch {
+      // Ignore storage quota errors
+    }
+  }
+
   function unlockCelebration(fullName, firstName, status) {
     applyPersonalizedName(fullName, firstName);
+    writeLocalPass(fullName, firstName);
     updateShareLinks(fullName);
     if (checkinGate) checkinGate.hidden = true;
     document.body.classList.remove('awaiting-session', 'gate-open');
@@ -706,6 +726,15 @@
       return;
     }
 
+    // Instant 0ms render for returning students using local cache while verifying cookie in background
+    const cached = readLocalPass();
+    if (cached && cached.name) {
+      unlockCelebration(cached.name, cached.firstName, 'cache');
+    } else {
+      // Show Check-In Gate immediately so first-time visitors never wait 3s on a blank screen
+      showGate();
+    }
+
     try {
       const resp = await fetch('/api/session', {
         method: 'GET',
@@ -714,20 +743,24 @@
       });
 
       if (!resp.ok) {
-        showGate();
-        setCheckinError('Check-in backend is not connected on this host yet. Deploy to Vercel with DATABASE_URL to enable live check-in.');
+        if (!cached) {
+          setCheckinError('Check-in backend is not connected on this host yet. Deploy to Vercel with DATABASE_URL to enable live check-in.');
+        }
         return;
       }
 
       const data = await resp.json();
       if (data.checkedIn && data.name) {
         unlockCelebration(data.name, data.firstName, 'session');
-      } else {
+      } else if (cached) {
+        // Cookie was cleared or removed by admin -> clear stale local cache and show gate
+        try { localStorage.removeItem(CACHE_KEY); } catch {}
         showGate();
       }
     } catch {
-      showGate();
-      setCheckinError('Unable to reach the check-in server. Please check your internet connection and refresh.');
+      if (!cached) {
+        setCheckinError('Unable to reach the check-in server. Please check your internet connection and refresh.');
+      }
     }
   }
 
