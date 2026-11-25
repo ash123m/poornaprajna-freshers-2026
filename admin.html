@@ -354,7 +354,9 @@
   <div class="wrap">
     <header class="topbar">
       <div class="brand">
-        <img src="assets/logo.png" alt="PIM Logo">
+        <a href="index.html" title="Go to Welcome Page" style="display:inline-flex;border-radius:50%;">
+          <img src="assets/logo.png" alt="PIM Logo">
+        </a>
         <div>
           <h1>Coordinator &amp; Professor Portal</h1>
           <p>Poornaprajna Institute of Management • Department of MCA</p>
@@ -399,18 +401,6 @@
         <div class="kpi">
           <div class="kpi-label">Total Checked In</div>
           <div id="kpi-total" class="kpi-val">0</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">QR Self-Scans</div>
-          <div id="kpi-qr" class="kpi-val">0</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Incharge Overrides</div>
-          <div id="kpi-override" class="kpi-val">0</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Auto Re-Scans</div>
-          <div id="kpi-rescans" class="kpi-val">0</div>
         </div>
       </section>
 
@@ -499,9 +489,6 @@
       const tbody = document.getElementById('entries-tbody');
 
       const kpiTotal = document.getElementById('kpi-total');
-      const kpiQr = document.getElementById('kpi-qr');
-      const kpiOverride = document.getElementById('kpi-override');
-      const kpiRescans = document.getElementById('kpi-rescans');
 
       let allEntries = [];
 
@@ -567,7 +554,11 @@
           delBtn.type = 'button';
           delBtn.className = 'btn btn-danger';
           delBtn.textContent = 'Remove';
-          delBtn.addEventListener('click', () => removeEntry(row.roll_no));
+          delBtn.addEventListener('click', () => {
+            if (window.confirm(`Remove ${row.full_name} (${row.roll_no}) from check-ins?`)) {
+              removeEntry(row.roll_no);
+            }
+          });
           tdAct.appendChild(delBtn);
 
           tr.append(tdIdx, tdRoll, tdName, tdTime, tdAct);
@@ -577,17 +568,6 @@
 
       function updateKpis() {
         kpiTotal.textContent = String(allEntries.length);
-        let qrCount = 0;
-        let ovCount = 0;
-        let rescanSum = 0;
-        allEntries.forEach((r) => {
-          if (r.entry_source === 'admin_override') ovCount += 1;
-          else qrCount += 1;
-          rescanSum += Number(r.reverify_count || 0);
-        });
-        kpiQr.textContent = String(qrCount);
-        kpiOverride.textContent = String(ovCount);
-        kpiRescans.textContent = String(rescanSum);
       }
 
       async function loadEntries() {
@@ -688,6 +668,19 @@
 
       // Auto-check existing admin cookie on page load
       loadEntries().catch(() => {});
+
+      // Gentle auto-refresh every 30s ONLY while tab is visible and unlocked (zero idle quota usage)
+      setInterval(() => {
+        if (!dashboardSection.hidden && document.visibilityState === 'visible') {
+          loadEntries().catch(() => {});
+        }
+      }, 30000);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && !dashboardSection.hidden) {
+          loadEntries().catch(() => {});
+        }
+      });
     })();
   </script>
 </body>
