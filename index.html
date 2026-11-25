@@ -24,17 +24,89 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
-<body>
-  <!-- Layer 1: 3D Polyhedral Geometry, Harmonic Ribbons & Volumetric Balloons -->
+<body class="no-copy awaiting-session">
+  <!-- Layer 1: Celebratory Floating Balloons & Starlight Sparkles -->
   <canvas id="bg-geometry-canvas" aria-hidden="true"></canvas>
 
-  <!-- Layer 2: 3D Rigid-Body Confetti & Metallic Foil Physics -->
+  <!-- Layer 2: 3D Confetti Burst & Subtle Continuous Background Flutter -->
   <canvas id="confetti-canvas" aria-hidden="true"></canvas>
 
   <!-- Subtle Ambient Vignette -->
   <div class="ambient-vignette" aria-hidden="true"></div>
+
+  <!-- Quick Check-In Gate (Shown only when no server-side session cookie is present) -->
+  <div id="checkin-gate" class="checkin-gate" role="dialog" aria-modal="true" aria-labelledby="checkin-title" hidden>
+    <div class="checkin-card glass-card">
+      <div class="checkin-logo-ring">
+        <img src="assets/logo.png" alt="Poornaprajna Institute of Management Official Logo" class="college-logo" width="84" height="84">
+      </div>
+      <p class="checkin-org">Poornaprajna Institute of Management • MCA</p>
+      <h2 id="checkin-title" class="checkin-title">Freshers Day 2026 Check-In</h2>
+      <p class="checkin-sub">Enter your name and roll number to unlock your personalized welcome.</p>
+
+      <form id="checkin-form" class="checkin-form" novalidate>
+        <div class="field-group">
+          <label for="checkin-name">Full Name</label>
+          <input
+            id="checkin-name"
+            name="name"
+            type="text"
+            placeholder="e.g. Ananya Rao"
+            autocomplete="name"
+            minlength="2"
+            maxlength="80"
+            required
+          >
+        </div>
+
+        <div class="field-group">
+          <label for="checkin-roll">Roll Number</label>
+          <input
+            id="checkin-roll"
+            name="rollNo"
+            type="text"
+            placeholder="e.g. 4MW26MC001"
+            autocomplete="off"
+            autocapitalize="characters"
+            minlength="2"
+            maxlength="24"
+            required
+          >
+        </div>
+
+        <!-- Honeypot -->
+        <input id="checkin-website" name="website" type="text" tabindex="-1" autocomplete="off" class="hp-field" aria-hidden="true">
+
+        <p id="checkin-error" class="checkin-error" role="alert" hidden></p>
+
+        <button id="checkin-submit" class="glow-btn primary-btn checkin-submit-btn" type="submit">
+          <span>Continue</span>
+        </button>
+      </form>
+
+      <!-- Step 2 inside Gate: Inviting "Let's Start!" screen right after Name & Roll No -->
+      <div id="checkin-ready" class="checkin-ready" hidden>
+        <div class="ready-badge">
+          <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span>You're Checked In!</span>
+        </div>
+        <h3 id="ready-greeting" class="ready-greeting">Welcome, Fresher!</h3>
+        <p class="ready-sub">Your Freshers Day 2026 celebration awaits inside.</p>
+        <button id="btn-lets-start" class="glow-btn gold-btn checkin-submit-btn" type="button">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>
+            <path d="M19 3v4M21 5h-4"/>
+          </svg>
+          <span>LET'S START CELEBRATING!</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Minimal Floating Top Bar: Icon-Only Music Toggle -->
   <header class="top-bar">
@@ -96,7 +168,7 @@
           </span>
         </div>
 
-        <p class="hey-fresher reveal-item">HEY FRESHER!</p>
+        <p id="hey-fresher-text" class="hey-fresher reveal-item">HEY FRESHER!</p>
 
         <h1 id="hero-heading" class="hero-title reveal-item">
           WELCOME TO YOUR <span class="gold-shimmer">NEW BEGINNING!</span>
@@ -147,10 +219,6 @@
           </button>
         </div>
       </div>
-
-      <a href="#greeting" class="scroll-cue" aria-label="Scroll to personal greeting">
-        <span class="scroll-mouse" aria-hidden="true"></span>
-      </a>
     </section>
 
     <!-- SECTION 2: Personal Greeting -->
@@ -261,7 +329,7 @@
             <a
               id="btn-whatsapp-share"
               class="glow-btn whatsapp-btn"
-              href="https://wa.me/?text=Welcome%20to%20Poornaprajna%20Institute%20of%20Management%20%E2%80%93%20Department%20of%20MCA%20Freshers%20Day%202026!%20Join%20us%20on%2028%20Nov%202026%20at%209%3A15%20AM%20in%20Prajna%20Hall.%20Learn%20%E2%80%A2%20Lead%20%E2%80%A2%20Excel!"
+              href="https://wa.me/?text=Welcome%20to%20Poornaprajna%20Institute%20of%20Management%20%E2%80%93%20Department%20of%20MCA%20Freshers%20Day%202026!"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -270,6 +338,15 @@
               </svg>
               <span>Share on WhatsApp</span>
             </a>
+
+            <button id="btn-instagram-share" class="glow-btn instagram-btn" type="button">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+              <span>Share on Instagram</span>
+            </button>
           </div>
         </div>
       </div>
@@ -307,9 +384,12 @@
           <span>Poster QR Studio</span>
         </a>
       </p>
+      <p class="footer-admin-wrap">
+        <a href="admin.html" class="footer-admin-link" aria-label="Coordinator Portal">Admin</a>
+      </p>
     </div>
   </footer>
 
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

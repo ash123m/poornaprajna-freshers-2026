@@ -4,15 +4,66 @@
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---------------------------------------------------------------------------
-  // 1. Personalized Greeting (?name=... optional query parameter)
+  // 1. Anti-Copy & Link Privacy Safeguards
   // ---------------------------------------------------------------------------
-  const fresherNameEl = document.getElementById('fresher-name');
-  const params = new URLSearchParams(window.location.search);
-  const rawName = (params.get('name') || '').trim().slice(0, 32);
-  const displayName = rawName || 'MCA Star';
+  if (window.location.search && window.history && window.history.replaceState) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
 
-  if (fresherNameEl && rawName) {
-    fresherNameEl.textContent = rawName;
+  function isEditableTarget(target) {
+    return Boolean(target && target.closest && target.closest('input, textarea'));
+  }
+
+  document.addEventListener('contextmenu', (e) => {
+    if (!isEditableTarget(e.target)) e.preventDefault();
+  });
+
+  ['copy', 'cut', 'dragstart', 'selectstart'].forEach((evt) => {
+    document.addEventListener(evt, (e) => {
+      if (!isEditableTarget(e.target)) e.preventDefault();
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (isEditableTarget(e.target)) return;
+    if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'u', 's'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // 2. Personalized State & Server-Side Session Gate
+  // ---------------------------------------------------------------------------
+  const heyFresherEl = document.getElementById('hey-fresher-text');
+  const fresherNameEl = document.getElementById('fresher-name');
+  const checkinGate = document.getElementById('checkin-gate');
+  const checkinForm = document.getElementById('checkin-form');
+  const checkinNameInput = document.getElementById('checkin-name');
+  const checkinRollInput = document.getElementById('checkin-roll');
+  const checkinHpInput = document.getElementById('checkin-website');
+  const checkinErrorEl = document.getElementById('checkin-error');
+  const checkinSubmitBtn = document.getElementById('checkin-submit');
+  const checkinReadyBox = document.getElementById('checkin-ready');
+  const readyGreetingEl = document.getElementById('ready-greeting');
+  const btnLetsStart = document.getElementById('btn-lets-start');
+  const checkinSubEl = document.querySelector('.checkin-sub');
+  const checkinTitleEl = document.getElementById('checkin-title');
+
+  let displayName = 'MCA Star';
+  let celebrationStarted = false;
+  let pendingCheckin = null;
+
+  function applyPersonalizedName(fullName, firstName) {
+    const cleanFull = String(fullName || '').trim() || 'MCA Star';
+    const cleanFirst = String(firstName || cleanFull.split(' ')[0] || 'FRESHER').trim();
+    displayName = cleanFull;
+
+    if (heyFresherEl) {
+      heyFresherEl.textContent = `HEY ${cleanFirst.toUpperCase()}!`;
+    }
+    if (fresherNameEl) {
+      fresherNameEl.textContent = cleanFull;
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -90,6 +141,7 @@
   let smoothPointerY = 0;
   let sparkles = [];
   let balloons = [];
+  let diyas = [];
 
   function initCelebrationBackground() {
     if (!bgCanvas || !bgCtx) return;
@@ -115,7 +167,7 @@
       depth: 0.3 + Math.random() * 0.7
     }));
 
-    // Volumetric Bezier balloons with realistic 3D specular shading & catenary strings
+    // Volumetric Bezier balloons distributed across screen from the very first frame
     const balloonThemes = [
       { highlight: '#FFF2B2', mid: '#E3B026', deep: '#8C6208', rim: 'rgba(255, 240, 179, 0.55)' },
       { highlight: '#F26B82', mid: '#8F1D31', deep: '#460A15', rim: 'rgba(255, 165, 180, 0.45)' },
@@ -125,14 +177,105 @@
     const balloonCount = isMobile ? 5 : 8;
     balloons = Array.from({ length: balloonCount }, (_, i) => ({
       x: ((i + 0.5) / balloonCount) * bgW + (Math.random() - 0.5) * 44,
-      y: bgH + 90 + Math.random() * bgH * 0.85,
+      y: bgH * 0.12 + Math.random() * (bgH * 0.82),
       rx: isMobile ? 17 + Math.random() * 6 : 21 + Math.random() * 8,
-      speedY: 0.4 + Math.random() * 0.34,
+      speedY: 0.38 + Math.random() * 0.3,
       swayAmp: 12 + Math.random() * 15,
       phase: Math.random() * Math.PI * 2,
       theme: balloonThemes[i % balloonThemes.length],
       alpha: 0.44 + Math.random() * 0.18
     }));
+
+    // Glowing traditional Diyas (only a few visible at a time)
+    const diyaCount = isMobile ? 3 : 4;
+    diyas = Array.from({ length: diyaCount }, (_, i) => ({
+      x: ((i + 0.5) / diyaCount) * bgW + (Math.random() - 0.5) * 36,
+      y: bgH * 0.52 + Math.random() * (bgH * 0.44),
+      scale: isMobile ? 0.78 + Math.random() * 0.18 : 0.92 + Math.random() * 0.22,
+      speedY: 0.18 + Math.random() * 0.14,
+      phase: Math.random() * Math.PI * 2,
+      swayAmp: 6 + Math.random() * 8
+    }));
+  }
+
+  function drawGlowingDiya(ctx, d, timeSec) {
+    const swayX = Math.sin(timeSec * 0.9 + d.phase) * d.swayAmp;
+    const x = d.x + swayX + smoothPointerX * 8;
+    const y = d.y;
+
+    // Fade gently near top and bottom edges so only a few appear gracefully
+    const normY = y / Math.max(1, bgH);
+    const edgeFade = Math.min(1, Math.max(0, (normY - 0.12) * 3.5)) * Math.min(1, Math.max(0, (1.02 - normY) * 4));
+    if (edgeFade <= 0.02) return;
+
+    const flicker = 1 + Math.sin(timeSec * 8.5 + d.phase) * 0.08 + Math.cos(timeSec * 13 + d.phase) * 0.05;
+    const tilt = Math.sin(timeSec * 5.2 + d.phase) * 0.08;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(d.scale, d.scale);
+    ctx.globalAlpha = 0.72 * edgeFade;
+
+    // Warm golden ambient halo
+    const halo = ctx.createRadialGradient(0, -14, 2, 0, -14, 38 * flicker);
+    halo.addColorStop(0, 'rgba(255, 214, 102, 0.45)');
+    halo.addColorStop(0.45, 'rgba(244, 150, 30, 0.16)');
+    halo.addColorStop(1, 'rgba(244, 150, 30, 0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(0, -14, 38 * flicker, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Terracotta / Gold-rimmed Diya bowl
+    ctx.beginPath();
+    ctx.moveTo(-18, 0);
+    ctx.quadraticCurveTo(0, 5, 18, 0);
+    ctx.quadraticCurveTo(13, 14, 0, 14);
+    ctx.quadraticCurveTo(-13, 14, -18, 0);
+    ctx.closePath();
+
+    const bowlGrad = ctx.createLinearGradient(-16, 0, 16, 14);
+    bowlGrad.addColorStop(0, '#B84A24');
+    bowlGrad.addColorStop(0.5, '#8F2918');
+    bowlGrad.addColorStop(1, '#5C160E');
+    ctx.fillStyle = bowlGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 217, 102, 0.65)';
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+
+    // Golden oil surface
+    ctx.beginPath();
+    ctx.ellipse(0, 0.5, 14.5, 2.8, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#D98A1A';
+    ctx.fill();
+
+    // Flickering multi-layer teardrop flame
+    ctx.save();
+    ctx.translate(0, -1);
+    ctx.rotate(tilt);
+    ctx.scale(1, flicker);
+
+    ctx.beginPath();
+    ctx.moveTo(0, -21);
+    ctx.bezierCurveTo(6.5, -12, 6.5, -3, 0, 0);
+    ctx.bezierCurveTo(-6.5, -3, -6.5, -12, 0, -21);
+    ctx.closePath();
+    const flameGrad = ctx.createLinearGradient(0, -21, 0, 0);
+    flameGrad.addColorStop(0, '#FFFBEB');
+    flameGrad.addColorStop(0.45, '#FFD147');
+    flameGrad.addColorStop(1, '#F97316');
+    ctx.fillStyle = flameGrad;
+    ctx.fill();
+
+    // Inner bright core
+    ctx.beginPath();
+    ctx.ellipse(0, -6, 2.1, 4.5, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+    ctx.restore();
+
+    ctx.restore();
   }
 
   function drawStarFlare(ctx, x, y, size, alpha) {
@@ -244,7 +387,7 @@
       }
     });
 
-    // 2. Volumetric floating balloons
+    // 2. Volumetric floating balloons & glowing Diyas (only a few at a time)
     if (!prefersReducedMotion) {
       balloons.forEach((b) => {
         b.y -= b.speedY;
@@ -254,6 +397,16 @@
         }
         drawVolumetricBalloon(bgCtx, b, timeSec);
       });
+
+      diyas.forEach((d) => {
+        d.y -= d.speedY;
+        if (d.y < bgH * 0.08) {
+          d.y = bgH + 40 + Math.random() * 70;
+          d.x = Math.random() * (bgW * 0.86) + bgW * 0.07;
+        }
+        drawGlowingDiya(bgCtx, d, timeSec);
+      });
+
       requestAnimationFrame(renderBackgroundFrame);
     }
   }
@@ -496,7 +649,8 @@
   }
 
   function fireWelcomeShower() {
-    if (prefersReducedMotion || !ctx) return;
+    if (celebrationStarted || prefersReducedMotion || !ctx) return;
+    celebrationStarted = true;
     fireConfettiBurst(115);
     setTimeout(() => fireConfettiBurst(65), 550);
     setTimeout(enableSubtleBackgroundConfetti, 2200);
@@ -505,8 +659,149 @@
   if (canvas && ctx) {
     resizeConfettiCanvas();
     window.addEventListener('resize', resizeConfettiCanvas, { passive: true });
-    window.addEventListener('load', fireWelcomeShower);
   }
+
+  function unlockCelebration(fullName, firstName, status) {
+    applyPersonalizedName(fullName, firstName);
+    updateShareLinks(fullName);
+    if (checkinGate) checkinGate.hidden = true;
+    document.body.classList.remove('awaiting-session', 'gate-open');
+    fireWelcomeShower();
+
+    if (status === 'reverified') {
+      showCelebrationToast(`Welcome back, ${fullName}! Your pass was restored.`);
+    } else if (status === 'checked_in') {
+      showCelebrationToast(`Welcome, ${fullName}! You are checked in.`);
+    } else if (status === 'device_locked') {
+      showCelebrationToast(`This device is already registered to ${fullName}.`);
+    }
+  }
+
+  function showGate() {
+    document.body.classList.remove('awaiting-session');
+    if (checkinGate) {
+      checkinGate.hidden = false;
+      document.body.classList.add('gate-open');
+    }
+    if (checkinNameInput) {
+      setTimeout(() => checkinNameInput.focus(), 60);
+    }
+  }
+
+  function setCheckinError(msg) {
+    if (!checkinErrorEl) return;
+    if (!msg) {
+      checkinErrorEl.hidden = true;
+      checkinErrorEl.textContent = '';
+    } else {
+      checkinErrorEl.textContent = msg;
+      checkinErrorEl.hidden = false;
+    }
+  }
+
+  async function initSessionGate() {
+    if (window.location.protocol === 'file:') {
+      document.body.classList.remove('awaiting-session');
+      fireWelcomeShower();
+      return;
+    }
+
+    try {
+      const resp = await fetch('/api/session', {
+        method: 'GET',
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+
+      if (!resp.ok) {
+        showGate();
+        setCheckinError('Check-in backend is not connected on this host yet. Deploy to Vercel with DATABASE_URL to enable live check-in.');
+        return;
+      }
+
+      const data = await resp.json();
+      if (data.checkedIn && data.name) {
+        unlockCelebration(data.name, data.firstName, 'session');
+      } else {
+        showGate();
+      }
+    } catch {
+      showGate();
+      setCheckinError('Unable to reach the check-in server. Please check your internet connection and refresh.');
+    }
+  }
+
+  if (checkinForm) {
+    checkinForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setCheckinError('');
+
+      const nameVal = (checkinNameInput?.value || '').trim();
+      const rollVal = (checkinRollInput?.value || '').trim().toUpperCase().replace(/[\s\-_]+/g, '');
+
+      if (nameVal.length < 2) {
+        setCheckinError('Please enter your full name.');
+        checkinNameInput?.focus();
+        return;
+      }
+      if (!/^[A-Z0-9]{2,24}$/.test(rollVal)) {
+        setCheckinError('Please enter a valid alphanumeric Roll Number.');
+        checkinRollInput?.focus();
+        return;
+      }
+
+      if (checkinSubmitBtn) checkinSubmitBtn.disabled = true;
+      try {
+        const resp = await fetch('/api/checkin', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: nameVal,
+            rollNo: rollVal,
+            website: checkinHpInput?.value || ''
+          })
+        });
+
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.ok) {
+          setCheckinError(data.error || 'Could not complete check-in. Please verify your details.');
+          return;
+        }
+
+        showLetsStartStep(data.name, data.firstName, data.status);
+      } catch {
+        setCheckinError('Network error while checking in. Please try again.');
+      } finally {
+        if (checkinSubmitBtn) checkinSubmitBtn.disabled = false;
+      }
+    });
+  }
+
+  function showLetsStartStep(fullName, firstName, status) {
+    pendingCheckin = { fullName, firstName, status };
+    if (checkinForm) checkinForm.hidden = true;
+    if (checkinSubEl) checkinSubEl.hidden = true;
+    if (checkinTitleEl) checkinTitleEl.hidden = true;
+    if (readyGreetingEl) {
+      readyGreetingEl.textContent = `Welcome, ${fullName}!`;
+    }
+    if (checkinReadyBox) {
+      checkinReadyBox.hidden = false;
+    }
+    if (btnLetsStart) {
+      setTimeout(() => btnLetsStart.focus(), 60);
+    }
+  }
+
+  if (btnLetsStart) {
+    btnLetsStart.addEventListener('click', () => {
+      if (!pendingCheckin) return;
+      unlockCelebration(pendingCheckin.fullName, pendingCheckin.firstName, pendingCheckin.status);
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', initSessionGate);
 
   // ---------------------------------------------------------------------------
   // 6. Button Actions ("LET'S CELEBRATE", "CELEBRATE AGAIN", WhatsApp)
@@ -515,6 +810,145 @@
   const btnCelebrateAgain = document.getElementById('btn-celebrate-again');
   const greetingSection = document.getElementById('greeting');
   const whatsappBtn = document.getElementById('btn-whatsapp-share');
+  const instagramBtn = document.getElementById('btn-instagram-share');
+
+  function getCleanSiteUrl() {
+    return window.location.protocol === 'https:'
+      ? `${window.location.origin}${window.location.pathname}`
+      : 'https://ash123m.github.io/poornaprajna-freshers-2026/';
+  }
+
+  function updateShareLinks(studentFullName) {
+    if (!whatsappBtn) return;
+    const siteUrl = getCleanSiteUrl();
+    const intro =
+      studentFullName && studentFullName !== 'MCA Star'
+        ? `*${studentFullName}* is celebrating *Freshers Day 2026* at *Poornaprajna Institute of Management – Dept. of MCA*!`
+        : `Celebrate *Freshers Day 2026* with *Poornaprajna Institute of Management – Dept. of MCA*!`;
+
+    const shareText =
+      `${intro}\n\n` +
+      `*Date:* 28 November 2026\n` +
+      `*Time:* 9:15 AM\n` +
+      `*Venue:* Prajna Hall\n\n` +
+      `_Learn • Lead • Excel — Together Towards a Brighter Future_\n` +
+      `${siteUrl}`;
+    whatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+  }
+
+  async function buildStoryCardFile() {
+    const w = 1080;
+    const h = 1350;
+    const card = document.createElement('canvas');
+    card.width = w;
+    card.height = h;
+    const c = card.getContext('2d');
+
+    const bg = c.createLinearGradient(0, 0, w, h);
+    bg.addColorStop(0, '#060E24');
+    bg.addColorStop(0.55, '#112452');
+    bg.addColorStop(1, '#6E1423');
+    c.fillStyle = bg;
+    c.fillRect(0, 0, w, h);
+
+    c.strokeStyle = '#F4C430';
+    c.lineWidth = 8;
+    c.strokeRect(42, 42, w - 84, h - 84);
+
+    // Draw official logo if loaded
+    const logoEl = document.querySelector('.college-logo');
+    if (logoEl && logoEl.complete && logoEl.naturalWidth > 0) {
+      c.save();
+      c.beginPath();
+      c.arc(w / 2, 210, 96, 0, Math.PI * 2);
+      c.closePath();
+      c.fillStyle = '#FFFFFF';
+      c.fill();
+      c.clip();
+      c.drawImage(logoEl, w / 2 - 96, 114, 192, 192);
+      c.restore();
+    }
+
+    c.textAlign = 'center';
+    c.fillStyle = '#FFE99C';
+    c.font = '700 28px "Plus Jakarta Sans", sans-serif';
+    c.fillText('POORNAPRAJNA INSTITUTE OF MANAGEMENT', w / 2, 370);
+    c.fillText('DEPARTMENT OF MCA', w / 2, 412);
+
+    c.fillStyle = '#F4C430';
+    c.font = '800 54px "Cinzel", Georgia, serif';
+    const first = displayName && displayName !== 'MCA Star' ? displayName.split(' ')[0].toUpperCase() : 'FRESHER';
+    c.fillText(`HEY ${first}!`, w / 2, 540);
+
+    c.fillStyle = '#FFFAF0';
+    c.font = '800 62px "Cinzel", Georgia, serif';
+    c.fillText('WELCOME TO YOUR', w / 2, 635);
+    c.fillStyle = '#FFD966';
+    c.fillText('NEW BEGINNING!', w / 2, 712);
+
+    c.fillStyle = '#F5EBD4';
+    c.font = '600 34px "Plus Jakarta Sans", sans-serif';
+    c.fillText('Freshers Day 2026', w / 2, 830);
+    c.font = '500 30px "Plus Jakarta Sans", sans-serif';
+    c.fillText('28 November 2026  •  9:15 AM  •  Prajna Hall', w / 2, 888);
+
+    c.fillStyle = '#FFD966';
+    c.font = '700 32px "Plus Jakarta Sans", sans-serif';
+    c.fillText('Learn • Lead • Excel', w / 2, 1060);
+    c.fillStyle = 'rgba(255, 250, 240, 0.78)';
+    c.font = 'italic 26px "Plus Jakarta Sans", sans-serif';
+    c.fillText('Together Towards a Brighter Future...', w / 2, 1118);
+
+    return new Promise((resolve) => {
+      card.toBlob((blob) => {
+        if (!blob) return resolve(null);
+        resolve(new File([blob], 'poornaprajna-freshers-2026-story.png', { type: 'image/png' }));
+      }, 'image/png');
+    });
+  }
+
+  updateShareLinks(displayName);
+
+  if (instagramBtn) {
+    instagramBtn.addEventListener('click', async () => {
+      const siteUrl = getCleanSiteUrl();
+      const caption = `Freshers Day 2026 — Poornaprajna Institute of Management, Dept. of MCA! Learn • Lead • Excel ${siteUrl}`;
+
+      try {
+        const storyFile = await buildStoryCardFile();
+        if (storyFile && navigator.canShare && navigator.canShare({ files: [storyFile] })) {
+          await navigator.share({
+            files: [storyFile],
+            title: 'Freshers Day 2026 | Poornaprajna MCA',
+            text: caption
+          });
+          return;
+        }
+        if (navigator.share) {
+          await navigator.share({
+            title: 'Freshers Day 2026 | Poornaprajna MCA',
+            text: caption,
+            url: siteUrl
+          });
+          return;
+        }
+        if (storyFile) {
+          const url = URL.createObjectURL(storyFile);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'poornaprajna-freshers-2026-story.png';
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+          showCelebrationToast('Story card downloaded! Post it to your Instagram Story.');
+          return;
+        }
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+      }
+
+      window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+    });
+  }
 
   if (btnCelebrate) {
     btnCelebrate.addEventListener('click', () => {
@@ -533,17 +967,6 @@
       fireConfettiBurst(140);
       showCelebrationToast('Meet • Mingle • Celebrate — Happy Freshers Day 2026!');
     });
-  }
-
-  if (whatsappBtn) {
-    const LIVE_URL = 'https://ash123m.github.io/poornaprajna-freshers-2026/';
-    const isHttps = window.location.protocol === 'https:';
-    const pageUrl = `\n${isHttps ? window.location.href : LIVE_URL}`;
-    const shareText =
-      `Hey Fresher! Welcome to Poornaprajna Institute of Management – Department of MCA Freshers Day 2026!\n` +
-      `Date: 28-11-2026 | Time: 9:15 AM | Venue: Prajna Hall\n` +
-      `Learn • Lead • Excel — Together Towards a Brighter Future!${pageUrl}`;
-    whatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
   }
 
   // ---------------------------------------------------------------------------

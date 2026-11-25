@@ -1,9 +1,7 @@
-const CACHE_NAME = 'pim-mca-freshers-2026-v5';
+const CACHE_NAME = 'pim-mca-freshers-2026-v9';
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './styles.css?v=5',
-  './app.js?v=5',
+  './styles.css?v=9',
+  './app.js?v=8',
   './qr.html',
   './qr-engine.js',
   './manifest.webmanifest',
@@ -28,12 +26,20 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-first so deployed updates appear immediately, with cache fallback offline
+// Never cache API, admin, or HTML session responses; network-first for static assets
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
+  if (
+    requestUrl.pathname.startsWith('/api/') ||
+    requestUrl.pathname.endsWith('/admin.html') ||
+    requestUrl.pathname === '/' ||
+    requestUrl.pathname.endsWith('/index.html')
+  ) {
+    return;
+  }
 
   event.respondWith(
     fetch(event.request)
