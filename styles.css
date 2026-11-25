@@ -114,6 +114,8 @@ body.gate-open {
   text-align: center;
   background: linear-gradient(155deg, rgba(16, 32, 74, 0.92), rgba(92, 16, 30, 0.86));
   border-color: var(--glass-border-strong);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
 }
 
 .checkin-logo-ring {
@@ -472,7 +474,13 @@ main {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--cream-200);
-  max-width: 460px;
+  max-width: 480px;
+}
+
+.dept-line {
+  display: block;
+  margin-top: 2px;
+  color: var(--gold-300);
 }
 
 .badge-row {

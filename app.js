@@ -141,7 +141,6 @@
   let smoothPointerY = 0;
   let sparkles = [];
   let balloons = [];
-  let diyas = [];
 
   function initCelebrationBackground() {
     if (!bgCanvas || !bgCtx) return;
@@ -185,97 +184,6 @@
       theme: balloonThemes[i % balloonThemes.length],
       alpha: 0.44 + Math.random() * 0.18
     }));
-
-    // Glowing traditional Diyas (only a few visible at a time)
-    const diyaCount = isMobile ? 3 : 4;
-    diyas = Array.from({ length: diyaCount }, (_, i) => ({
-      x: ((i + 0.5) / diyaCount) * bgW + (Math.random() - 0.5) * 36,
-      y: bgH * 0.52 + Math.random() * (bgH * 0.44),
-      scale: isMobile ? 0.78 + Math.random() * 0.18 : 0.92 + Math.random() * 0.22,
-      speedY: 0.18 + Math.random() * 0.14,
-      phase: Math.random() * Math.PI * 2,
-      swayAmp: 6 + Math.random() * 8
-    }));
-  }
-
-  function drawGlowingDiya(ctx, d, timeSec) {
-    const swayX = Math.sin(timeSec * 0.9 + d.phase) * d.swayAmp;
-    const x = d.x + swayX + smoothPointerX * 8;
-    const y = d.y;
-
-    // Fade gently near top and bottom edges so only a few appear gracefully
-    const normY = y / Math.max(1, bgH);
-    const edgeFade = Math.min(1, Math.max(0, (normY - 0.12) * 3.5)) * Math.min(1, Math.max(0, (1.02 - normY) * 4));
-    if (edgeFade <= 0.02) return;
-
-    const flicker = 1 + Math.sin(timeSec * 8.5 + d.phase) * 0.08 + Math.cos(timeSec * 13 + d.phase) * 0.05;
-    const tilt = Math.sin(timeSec * 5.2 + d.phase) * 0.08;
-
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(d.scale, d.scale);
-    ctx.globalAlpha = 0.72 * edgeFade;
-
-    // Warm golden ambient halo
-    const halo = ctx.createRadialGradient(0, -14, 2, 0, -14, 38 * flicker);
-    halo.addColorStop(0, 'rgba(255, 214, 102, 0.45)');
-    halo.addColorStop(0.45, 'rgba(244, 150, 30, 0.16)');
-    halo.addColorStop(1, 'rgba(244, 150, 30, 0)');
-    ctx.fillStyle = halo;
-    ctx.beginPath();
-    ctx.arc(0, -14, 38 * flicker, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Terracotta / Gold-rimmed Diya bowl
-    ctx.beginPath();
-    ctx.moveTo(-18, 0);
-    ctx.quadraticCurveTo(0, 5, 18, 0);
-    ctx.quadraticCurveTo(13, 14, 0, 14);
-    ctx.quadraticCurveTo(-13, 14, -18, 0);
-    ctx.closePath();
-
-    const bowlGrad = ctx.createLinearGradient(-16, 0, 16, 14);
-    bowlGrad.addColorStop(0, '#B84A24');
-    bowlGrad.addColorStop(0.5, '#8F2918');
-    bowlGrad.addColorStop(1, '#5C160E');
-    ctx.fillStyle = bowlGrad;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 217, 102, 0.65)';
-    ctx.lineWidth = 1.1;
-    ctx.stroke();
-
-    // Golden oil surface
-    ctx.beginPath();
-    ctx.ellipse(0, 0.5, 14.5, 2.8, 0, 0, Math.PI * 2);
-    ctx.fillStyle = '#D98A1A';
-    ctx.fill();
-
-    // Flickering multi-layer teardrop flame
-    ctx.save();
-    ctx.translate(0, -1);
-    ctx.rotate(tilt);
-    ctx.scale(1, flicker);
-
-    ctx.beginPath();
-    ctx.moveTo(0, -21);
-    ctx.bezierCurveTo(6.5, -12, 6.5, -3, 0, 0);
-    ctx.bezierCurveTo(-6.5, -3, -6.5, -12, 0, -21);
-    ctx.closePath();
-    const flameGrad = ctx.createLinearGradient(0, -21, 0, 0);
-    flameGrad.addColorStop(0, '#FFFBEB');
-    flameGrad.addColorStop(0.45, '#FFD147');
-    flameGrad.addColorStop(1, '#F97316');
-    ctx.fillStyle = flameGrad;
-    ctx.fill();
-
-    // Inner bright core
-    ctx.beginPath();
-    ctx.ellipse(0, -6, 2.1, 4.5, 0, 0, Math.PI * 2);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fill();
-    ctx.restore();
-
-    ctx.restore();
   }
 
   function drawStarFlare(ctx, x, y, size, alpha) {
@@ -387,7 +295,7 @@
       }
     });
 
-    // 2. Volumetric floating balloons & glowing Diyas (only a few at a time)
+    // 2. Volumetric floating balloons
     if (!prefersReducedMotion) {
       balloons.forEach((b) => {
         b.y -= b.speedY;
@@ -396,15 +304,6 @@
           b.x = Math.random() * bgW;
         }
         drawVolumetricBalloon(bgCtx, b, timeSec);
-      });
-
-      diyas.forEach((d) => {
-        d.y -= d.speedY;
-        if (d.y < bgH * 0.08) {
-          d.y = bgH + 40 + Math.random() * 70;
-          d.x = Math.random() * (bgW * 0.86) + bgW * 0.07;
-        }
-        drawGlowingDiya(bgCtx, d, timeSec);
       });
 
       requestAnimationFrame(renderBackgroundFrame);
